@@ -1,434 +1,535 @@
-# 💀 IP CHANGER ULTIMATE v5.0 💀
+# IP-Changer
 
-**The ONLY IP changer that ACTUALLY changes your public IP address!**
+**Professional network tool for changing your public IP address on Linux**
 
-## 🎯 Why This Version is Different
+[![GitHub](https://img.shields.io/badge/GitHub-00xk%2FIP--Changer-blue)](https://github.com/00xk/IP-Changer)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Linux-orange.svg)](https://www.linux.org/)
 
-Previous versions failed because they only reset your LOCAL network - which doesn't change your PUBLIC IP (the one websites see). This version uses **TOR NETWORK** to guarantee IP changes!
+---
 
-## 🚀 Features
+## Table of Contents
 
-- ✅ **TOR Integration** - Routes traffic through TOR network (GUARANTEED IP CHANGE!)
-- ✅ **MAC Spoofing** - Changes hardware address
-- ✅ **Network Reset** - Complete DHCP renewal
-- ✅ **Auto-Install** - Installs TOR and dependencies automatically
-- ✅ **Giant Skull Art** - Maximum death mode aesthetics
-- ✅ **Works with/without root** - Some features require sudo, but TOR works for all users
-- ✅ **Real IP Verification** - Actually checks if your IP changed
+- [Overview](#overview)
+- [Features](#features)
+- [How It Works](#how-it-works)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Updating](#updating)
+- [Technical Details](#technical-details)
+- [Troubleshooting](#troubleshooting)
+- [FAQ](#faq)
+- [Legal Notice](#legal-notice)
+- [Contributing](#contributing)
+- [License](#license)
 
-## 📦 Installation
+---
 
-### Quick Install (Ubuntu/Debian)
+## Overview
+
+IP-Changer is a professional-grade network tool that **actually changes your public IP address** using the TOR network. Unlike other IP changers that only reset your local network (which rarely changes your ISP-assigned IP), this tool routes your traffic through TOR to guarantee a different public IP address.
+
+**Why This Tool?**
+
+Most "IP changers" fail because they only:
+1. Release your DHCP lease
+2. Renew your DHCP lease
+3. Hope your ISP gives you a new IP (they usually don't)
+
+**Our Solution:**
+
+We use the **TOR (The Onion Router)** network to:
+1. Route ALL traffic through TOR
+2. Your public IP becomes a TOR exit node IP
+3. Change TOR circuits to get new IPs
+4. **Guaranteed IP change every time**
+
+---
+
+## Features
+
+- **Guaranteed IP Change** - Uses TOR network for reliable IP rotation
+- **Auto-Installation** - Automatically installs TOR and dependencies
+- **MAC Address Spoofing** - Changes hardware address (with root)
+- **Network Reset** - Complete DHCP renewal (with root)
+- **Professional Logging** - Clean, timestamped output
+- **Session Statistics** - Track successful/failed IP changes
+- **Update Checker** - Automatically checks for new versions
+- **No Emojis** - Professional, clean terminal output
+- **Open Source** - Fully transparent code
+
+---
+
+## How It Works
+
+### The Problem
+
+Your ISP (Internet Service Provider) controls your public IP address. Most ISPs use:
+
+- **Static IP Assignment** - Same IP forever
+- **Long-Term DHCP Leases** - IP stays the same for weeks/months
+- **MAC Address Binding** - Tracks your router's hardware address
+
+Simply restarting your network connection won't change your IP because your ISP recognizes your router and gives you the same IP.
+
+### Our Solution: TOR Network
+
+**TOR (The Onion Router)** is a free, open-source anonymity network:
+
+```
+Your Computer --> TOR Node 1 --> TOR Node 2 --> TOR Node 3 --> Internet
+```
+
+When you use TOR:
+- Traffic is encrypted 3 times (onion routing)
+- Bounces through 3+ random servers worldwide
+- Websites see the TOR exit node's IP, not yours
+- Each new circuit = different exit node = different IP
+
+**This tool:**
+1. Installs and starts TOR service
+2. Routes traffic through TOR
+3. Requests new TOR circuit
+4. Verifies new IP address
+5. Repeats on schedule
+
+---
+
+## Installation
+
+### Quick Install
 
 ```bash
-# Download the script
-wget https://your-url/ip_changer_ultimate.py
+# Clone the repository
+git clone https://github.com/00xk/IP-Changer.git
+
+# Navigate to directory
+cd IP-Changer
 
 # Make executable
-chmod +x ip_changer_ultimate.py
+chmod +x ip_changer.py
 
-# Run (with sudo for best results)
-sudo python3 ip_changer_ultimate.py
+# Run with sudo (recommended)
+sudo python3 ip_changer.py
 ```
 
-### Manual Install
+### Manual Dependencies
+
+If auto-install fails:
 
 ```bash
-# Install dependencies
+# Install TOR
 sudo apt update
-sudo apt install -y tor python3-pip
+sudo apt install tor
 
 # Install Python packages
-pip3 install requests stem --break-system-packages
-
-# Run the script
-sudo python3 ip_changer_ultimate.py
+pip3 install requests stem PySocks --break-system-packages
 ```
 
-## 🎮 Usage
+### Supported Distributions
+
+- Ubuntu / Debian
+- Fedora / RedHat / CentOS
+- Arch Linux
+- openSUSE
+- Any Linux with systemd
+
+---
+
+## Usage
 
 ### Basic Usage
 
 ```bash
-sudo python3 ip_changer_ultimate.py
+sudo python3 ip_changer.py
 ```
 
 The script will:
-1. Check your current IP
-2. Install TOR if not present
-3. Start TOR service
-4. Route your traffic through TOR
-5. Verify your new IP address
-6. Repeat every X seconds (you choose)
+1. Check if TOR is installed (install if needed)
+2. Start TOR service
+3. Display your current IP
+4. Ask for rotation interval (default: 10 seconds)
+5. Begin rotating your IP
 
-### Without Root (Limited Mode)
-
-```bash
-python3 ip_changer_ultimate.py
-```
-
-TOR routing will still work, but MAC spoofing and network reset won't be available.
-
-## 🔥 How It Works
-
-### The Problem with Other IP Changers
-
-Most IP changers only do this:
-```
-1. Release DHCP lease
-2. Renew DHCP lease
-3. Hope ISP gives you new IP (SPOILER: They don't!)
-```
-
-**Why this fails:** Your ISP controls your public IP. Most ISPs use:
-- Static IP assignments (same IP forever)
-- Long-term DHCP leases (weeks/months)
-- MAC address binding (tracks your router)
-
-### Our Solution: TOR Network
-
-```
-1. Install TOR service
-2. Route ALL traffic through TOR
-3. Your IP is now a TOR exit node IP
-4. Change TOR circuit = Change IP
-5. GUARANTEED new IP every time!
-```
-
-## 🧅 What is TOR?
-
-**TOR (The Onion Router)** is a free anonymity network used by:
-- Journalists in oppressive countries
-- Privacy advocates
-- Security researchers
-- Anyone who values privacy
-
-When you use TOR:
-- Your traffic is encrypted 3 times
-- It bounces through 3+ random servers worldwide
-- Websites see the exit node's IP, not yours
-- You get a different IP address
-
-## 🛡️ Security & Privacy
-
-### What This Script Does
-
-✅ Changes your public IP address via TOR
-✅ Encrypts your traffic through TOR network
-✅ Spoofs your MAC address (with sudo)
-✅ Clears network caches
-
-### What This Script Doesn't Do
-
-❌ Make you 100% anonymous (use TOR Browser for that)
-❌ Encrypt non-TOR traffic automatically
-❌ Protect against all tracking methods
-❌ Bypass all network restrictions
-
-### Legal Notice
-
-This tool is for:
-- ✅ Privacy protection
-- ✅ Network testing
-- ✅ Educational purposes
-- ✅ Legitimate research
-
-NOT for:
-- ❌ Illegal activities
-- ❌ Bypassing terms of service
-- ❌ Harassment or abuse
-- ❌ Copyright infringement
-
-**You are responsible for how you use this tool.**
-
-## 📊 Understanding the Output
-
-### Successful IP Change
-
-```
-💀 INITIATING ULTIMATE IP CHANGE SEQUENCE 💀
-
-📍 Current IP: 203.0.113.45
-
-⚡ METHOD MAC: HARDWARE ADDRESS SPOOFING
-   ✅ MAC address spoofed
-
-⚡ METHOD RESET: FULL NETWORK RESTART
-   ✅ Network reset complete
-
-⚡ METHOD TOR: ONION ROUTING IP CHANGE
-   ✅ Tor service running
-   ✅ Tor IP: 198.51.100.23
-
-📊 RESULTS:
-📍 Old IP: 203.0.113.45
-📍 New IP: 198.51.100.23        ← CHANGED!
-🔧 Method: Tor Network
-🕐 Time: 14:23:45
-
-💀💀💀 SUCCESS! IP CHANGED! 💀💀💀
-🧅 You are now connected through TOR network!
-```
-
-### Failed IP Change (Without TOR)
-
-```
-⚠️  IP CHANGE VERIFICATION FAILED
-
-💡 TOR method failed. Try:
-   1. Run with sudo
-   2. Manually install: sudo apt install tor
-   3. Use a VPN service
-```
-
-## 🔧 Troubleshooting
-
-### "Tor not found"
-
-The script will try to auto-install TOR. If it fails:
+### Without Root
 
 ```bash
-# Ubuntu/Debian
+python3 ip_changer.py
+```
+
+TOR routing will work, but MAC spoofing and network reset will be disabled.
+
+### Example Output
+
+```
+============================================================
+
+     IP CHANGER - Advanced Network Identity Tool
+
+     GitHub: https://github.com/00xk/IP-Changer
+     Author: 00xk
+     Version: 6.0 FINAL
+
+============================================================
+
+[14:23:15] [SYSTEM] Checking for updates...
+[14:23:15] [INFO] Latest version on GitHub: v6.0
+
+============================================================
+[14:23:15] [SYSTEM] SYSTEM INFORMATION
+============================================================
+[14:23:15] [INFO] Platform: Linux
+[14:23:15] [INFO] Root access: Yes
+[14:23:15] [INFO] Network interface: eth0
+[14:23:16] [INFO] Current public IP: 203.0.113.45
+============================================================
+
+CONFIGURATION
+[?] Enter rotation interval in seconds (default: 10): 15
+
+[14:23:20] [SUCCESS] IP rotation interval set to 15 seconds
+[14:23:20] [INFO] Press Ctrl+C to stop
+
+============================================================
+[14:23:20] [SYSTEM] INITIATING IP CHANGE SEQUENCE
+============================================================
+
+[14:23:20] [INFO] Network interface: eth0
+[14:23:20] [INFO] Checking initial public IP...
+[14:23:21] [INFO] Current direct IP: 203.0.113.45
+[14:23:21] [SYSTEM] Applying network-level changes...
+[14:23:21] [SYSTEM] Spoofing MAC address on eth0...
+[14:23:21] [SUCCESS] MAC changed to 00:16:3e:4a:2b:1c
+[14:23:23] [SYSTEM] Performing network reset...
+[14:23:25] [SUCCESS] Network reset complete
+[14:23:28] [SYSTEM] Changing IP via TOR network...
+[14:23:28] [SYSTEM] Initializing TOR method...
+[14:23:28] [SUCCESS] TOR setup complete
+[14:23:29] [INFO] Current TOR IP: 198.51.100.23
+[14:23:29] [SUCCESS] Requested new TOR circuit
+[14:23:34] [SYSTEM] Verifying new IP address...
+[14:23:37] [SUCCESS] IP successfully changed: 198.51.100.23 -> 185.220.101.52
+
+============================================================
+[14:23:37] [SYSTEM] IP CHANGE RESULTS
+============================================================
+[14:23:37] [INFO] OLD IP: 198.51.100.23
+[14:23:37] [SUCCESS] NEW IP: 185.220.101.52
+[14:23:37] [SUCCESS] STATUS: IP SUCCESSFULLY CHANGED
+[14:23:37] [INFO] METHOD: TOR Network
+[14:23:37] [INFO] Your traffic is now routed through TOR
+
+[14:23:37] [INFO] Next rotation in 15 seconds...
+```
+
+### Stopping
+
+Press `Ctrl+C` to stop. You'll see session statistics:
+
+```
+============================================================
+SESSION STATISTICS
+============================================================
+Successful changes: 12
+Failed attempts: 0
+Total runtime: 00:03:45
+
+IP Change History:
+------------------------------------------------------------
+[14:23:37] SUCCESS | 198.51.100.23 -> 185.220.101.52
+[14:23:52] SUCCESS | 185.220.101.52 -> 192.42.116.16
+[14:24:07] SUCCESS | 192.42.116.16 -> 199.249.230.88
+============================================================
+```
+
+---
+
+## Updating
+
+### Method 1: Git Pull (Recommended)
+
+If you cloned the repository:
+
+```bash
+cd IP-Changer
+git pull origin main
+```
+
+### Method 2: Manual Download
+
+```bash
+# Download latest version
+wget https://github.com/00xk/IP-Changer/archive/refs/heads/main.zip
+
+# Extract
+unzip main.zip
+
+# Navigate and run
+cd IP-Changer-main
+chmod +x ip_changer.py
+sudo python3 ip_changer.py
+```
+
+### Method 3: Re-clone
+
+```bash
+# Remove old version
+rm -rf IP-Changer
+
+# Clone latest version
+git clone https://github.com/00xk/IP-Changer.git
+cd IP-Changer
+chmod +x ip_changer.py
+```
+
+### Checking for Updates
+
+The script automatically checks for updates on GitHub when you run it. If a new version is available, you'll see:
+
+```
+[14:23:15] [INFO] Latest version on GitHub: v6.1
+[14:23:15] [INFO] To update, run: git pull origin main
+```
+
+---
+
+## Technical Details
+
+### TOR Network
+
+- **Port:** 9050 (SOCKS proxy)
+- **Control Port:** 9051 (for requesting new circuits)
+- **Protocol:** SOCKS5
+
+### IP Change Methods
+
+1. **TOR Circuit Rotation** (Primary)
+   - Requests new TOR identity via control port
+   - Fallback: Restart TOR service
+   
+2. **MAC Address Spoofing** (Requires root)
+   - Generates random MAC address
+   - Uses macchanger or manual IP commands
+   
+3. **Network Reset** (Requires root)
+   - Releases DHCP lease
+   - Flushes IP addresses
+   - Brings interface down/up
+   - Renews DHCP lease
+
+### Dependencies
+
+- **Python 3.6+**
+- **requests** - HTTP library for IP checking
+- **stem** - Python library for TOR control
+- **PySocks** - SOCKS proxy support
+- **TOR** - The Onion Router service
+
+### File Structure
+
+```
+IP-Changer/
+├── ip_changer.py       # Main script
+├── README.md           # This file
+└── LICENSE             # MIT License
+```
+
+---
+
+## Troubleshooting
+
+### Issue: "TOR is not installed"
+
+**Solution:**
+```bash
 sudo apt update
 sudo apt install tor
-
-# Fedora/RedHat
-sudo dnf install tor
-
-# Arch
-sudo pacman -S tor
 ```
 
-### "Permission denied"
+### Issue: "TOR service is not accessible on port 9050"
 
-Run with sudo:
+**Solution:**
 ```bash
-sudo python3 ip_changer_ultimate.py
+# Check TOR status
+sudo systemctl status tor
+
+# Start TOR
+sudo systemctl start tor
+
+# Enable TOR on boot
+sudo systemctl enable tor
 ```
 
-### "IP didn't change"
+### Issue: "IP did not change"
 
-If TOR fails to install/start:
-1. Manually install TOR: `sudo apt install tor`
-2. Start TOR: `sudo systemctl start tor`
-3. Check status: `sudo systemctl status tor`
-4. Re-run the script
+**Possible Causes:**
+1. TOR service not running properly
+2. Network connectivity issues
+3. Firewall blocking TOR ports
 
-### TOR is slow
-
-Yes, TOR is slower than direct connection because:
-- Traffic goes through 3+ servers
-- Encryption/decryption at each hop
-- Exit nodes may be far away
-
-This is the trade-off for anonymity.
-
-### I want my original IP back
-
-Stop the script (Ctrl+C) and:
-
+**Solution:**
 ```bash
-# Stop TOR
-sudo systemctl stop tor
+# Check TOR logs
+sudo journalctl -u tor -n 50
 
-# Reset network
-sudo systemctl restart NetworkManager
+# Restart TOR
+sudo systemctl restart tor
 
-# Or just reboot
-sudo reboot
+# Check firewall
+sudo ufw status
 ```
 
-## 🌍 TOR Exit Node Countries
+### Issue: "Permission denied"
 
-Your new IP will be from a TOR exit node, which could be in:
-- 🇩🇪 Germany
-- 🇺🇸 United States
-- 🇫🇷 France
-- 🇳🇱 Netherlands
-- 🇸🇪 Sweden
-- 🇨🇭 Switzerland
-- And many others!
+**Solution:**
+```bash
+# Run with sudo
+sudo python3 ip_changer.py
+```
 
-You can't choose the country (that's part of TOR's anonymity), but you'll get a different IP each rotation.
+### Issue: TOR is slow
 
-## 🆚 Comparison: This vs VPN vs Regular Changers
+**This is normal.** TOR routes traffic through multiple servers for anonymity, which reduces speed. This is the trade-off for privacy.
 
-| Feature | This Script | VPN | Regular Changers |
-|---------|------------|-----|-----------------|
-| Changes Public IP | ✅ Yes (via TOR) | ✅ Yes | ❌ Maybe |
-| Free | ✅ Yes | ❌ No (paid) | ✅ Yes |
-| Guaranteed | ✅ Yes (if TOR works) | ✅ Yes | ❌ No |
-| Speed | ⚠️ Slower | ✅ Fast | ✅ Fast |
-| Anonymity | ✅ High | ⚠️ Depends | ❌ None |
-| Encryption | ✅ Yes (TOR) | ✅ Yes | ❌ No |
+### Issue: Some websites block TOR
 
-## 💡 Best Practices
-
-### For Privacy
-1. Run the script with sudo
-2. Let it install TOR
-3. Verify IP changed successfully
-4. Use HTTPS websites only
-5. Don't log into personal accounts
-
-### For Testing
-1. Run without sudo first
-2. Check if TOR installs properly
-3. Verify IP rotation works
-4. Adjust interval as needed
-
-### For Maximum Anonymity
-1. Use TOR Browser instead
-2. Don't use this for illegal activities
-3. Combine with HTTPS everywhere
-4. Avoid logging into accounts
-
-## 📚 Additional Resources
-
-- [TOR Project Official](https://www.torproject.org/)
-- [How TOR Works](https://2019.www.torproject.org/about/overview.html.en)
-- [TOR FAQ](https://support.torproject.org/faq/)
-- [EFF - TOR Guide](https://ssd.eff.org/en/module/how-use-tor-linux)
-
-## 🐛 Known Issues
-
-1. **TOR installation may fail** on some distros
-   - Solution: Manually install TOR first
-   
-2. **Slow speed** when using TOR
-   - This is normal for TOR
-   
-3. **Some websites block TOR** exit nodes
-   - Use a VPN instead for those sites
-   
-4. **MAC spoofing requires root**
-   - Run with sudo, or skip MAC method
-
-## 🤝 Contributing
-
-Found a bug? Have a suggestion? Want to add features?
-
-Issues and improvements welcome!
-
-## ⚖️ License
-
-This script is provided AS-IS for educational purposes.
-
-**Use responsibly and legally.**
-
-## 💀 Final Notes
-
-**This script ACTUALLY changes your IP using TOR.**
-
-If TOR doesn't install/work:
-- You can still use VPN services (NordVPN, ProtonVPN, etc.)
-- You can still restart your router manually
-- You can still contact your ISP
-
-But this is the only **free, automated, guaranteed** way to change your public IP on Linux!
-
-Stay anonymous! 💀
+**This is common.** Many websites (Netflix, banking sites) block TOR exit nodes. For those sites:
+- Use a VPN instead
+- Use your direct connection
+- This tool is for privacy/testing, not bypassing geo-restrictions
 
 ---
 
-**Version:** 5.0 ULTIMATE  
-**Platform:** Linux  
-**Requirements:** Python 3, TOR (auto-installed)  
-**Status:** MAXIMUM DEATH MODE ACTIVATED 💀
-### Why Public IP Might Not Change
+## FAQ
 
-Your **public IP** is controlled by your ISP (Internet Service Provider). Here's why it might not change:
+### Q: Is this legal?
 
-1. **Static IP Assignment** - Your ISP gives you the same IP every time
-2. **Long DHCP Leases** - Your ISP's DHCP lease might last days/weeks
-3. **MAC Address Binding** - ISP assigns IP based on your router's MAC address
-4. **Business Connection** - Business internet often has static IPs
+**A:** Yes. TOR is legal in most countries and is used by journalists, activists, and privacy advocates. However, what you do with anonymity matters. Use responsibly.
 
-### How to ACTUALLY Change Your Public IP
+### Q: Does this make me anonymous?
 
-If you need to change your public IP address, try these methods:
+**A:** Partially. Your public IP is hidden, but full anonymity requires:
+- Using HTTPS websites only
+- Not logging into personal accounts
+- Using TOR Browser (not just this script)
+- Following proper OPSEC practices
 
-1. **VPN Service** (Most Reliable)
-   - NordVPN, ExpressVPN, ProtonVPN, etc.
-   - Changes IP instantly to different countries
-   - **This script can't do this for you**
+### Q: Will my ISP know I'm using TOR?
 
-2. **Restart Your Router**
-   - Unplug router for 5-10 minutes
-   - ISP might assign new IP when you reconnect
-   - Works better with cable/DSL than fiber
+**A:** Yes, they can see you're connecting to TOR nodes, but they can't see what you're doing.
 
-3. **Contact Your ISP**
-   - Ask for a new IP assignment
-   - Some ISPs can do this remotely
+### Q: Can I choose which country my IP is from?
 
-4. **Change Router MAC Address**
-   - Some routers allow MAC cloning
-   - ISP may assign new IP to new MAC
+**A:** No. TOR randomly selects exit nodes. This is intentional for anonymity. If you need specific countries, use a VPN.
 
-### What This Script DOES Do
+### Q: Is this better than a VPN?
 
-✅ Releases and renews your local network connection
-✅ Forces your computer to request a new DHCP lease
-✅ Might get new IP if ISP uses dynamic assignment
-✅ Will definitely refresh your local network connection
-✅ Looks cool with skulls! 💀
+**A:** Different use cases:
 
-### What This Script DOESN'T Do
+| Feature | TOR (This Tool) | VPN |
+|---------|-----------------|-----|
+| Cost | Free | $5-15/month |
+| IP Change | Yes | Yes |
+| Speed | Slower | Fast |
+| Anonymity | High | Medium |
+| Choose Country | No | Yes |
 
-❌ Cannot bypass ISP IP assignment policies
-❌ Cannot force ISP to give you new IP
-❌ Cannot provide VPN-like IP masking
-❌ Cannot guarantee public IP change
+### Q: Will this work on Windows/Mac?
 
-## 🎮 Usage
+**A:** No, this is Linux-only. For Windows/Mac:
+- Use TOR Browser
+- Use a VPN service
+- Use a proxy service
 
-1. Run the script with admin privileges
-2. Enter desired interval (or press Enter for 5 seconds)
-3. Watch as it attempts to rotate your IP
-4. Press Ctrl+C to stop and see statistics
+### Q: How often should I rotate my IP?
 
-## 📊 Output Explanation
+**A:** Depends on your use case:
+- Privacy: Every 5-10 minutes
+- Testing: As needed
+- Normal browsing: 30+ minutes
 
-```
-💀 INITIATING IP ROTATION
-📍 Old Public IP: 203.0.113.45    ← Your current internet IP
-🏠 Old Local IP: 192.168.1.100    ← Your computer's network IP
-⚡ Method 1: Releasing DHCP lease...
-⚡ Method 2: Shutting down interface...
-⚡ Method 3: Bringing interface back up...
-⚡ Method 4: Requesting new DHCP lease...
-⚡ Method 5: Flushing DNS cache...
-✅ New Public IP: 203.0.113.46    ← Success! IP changed
-🏠 New Local IP: 192.168.1.101    ← Local IP also changed
-```
+### Q: Does this protect against tracking?
 
-If you see "⚠️ WARNING: Public IP didn't change" - this is NORMAL for most ISPs!
-
-## 🛡️ Security & Privacy
-
-- This tool is for **legitimate purposes** only
-- Changing IPs doesn't make you anonymous
-- For real privacy, use a trusted VPN service
-- Always respect website terms of service
-
-## 🐛 Troubleshooting
-
-**"Permission denied" error:**
-- Linux: Run with `sudo`
-- Windows: Run as Administrator
-
-**"requests module not found":**
-- Run: `pip install requests`
-
-**IP never changes:**
-- This is normal! Your ISP controls public IP assignment
-- Consider using a VPN for reliable IP rotation
-
-## 📝 License
-
-Free to use for educational and legitimate purposes.
+**A:** It protects against IP-based tracking, but websites can still track you via:
+- Cookies
+- Browser fingerprinting
+- Login information
+- Payment methods
 
 ---
 
-💀 **Made with skull power!** 💀
+## Legal Notice
+
+This tool is provided for:
+- Educational purposes
+- Privacy protection
+- Network testing
+- Security research
+
+**NOT for:**
+- Illegal activities
+- Bypassing terms of service
+- Harassment or abuse
+- Copyright infringement
+
+**You are responsible for your actions. The author is not liable for misuse.**
+
+---
+
+## Contributing
+
+Contributions welcome! To contribute:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+**Areas for contribution:**
+- Additional IP change methods
+- Support for more Linux distributions
+- Better error handling
+- Performance improvements
+- Documentation improvements
+
+---
+
+## License
+
+MIT License
+
+Copyright (c) 2024 00xk
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Links
+
+- **GitHub Repository:** https://github.com/00xk/IP-Changer
+- **Report Issues:** https://github.com/00xk/IP-Changer/issues
+- **TOR Project:** https://www.torproject.org/
+- **Author:** [@00xk](https://github.com/00xk)
+
+---
+
+**Made with professional standards by 00xk**
+
+**Star the repo if you find it useful!**
