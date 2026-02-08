@@ -3,9 +3,9 @@
 IP CHANGER - Professional Network Tool
 GitHub: https://github.com/00xk/IP-Changer
 Author: 00xk
-Version: 6.0 FINAL
+Version: 7.0 OPTIMIZED
 
-This tool uses TOR network and advanced techniques to change your public IP address.
+Fast and reliable IP changing using TOR network.
 """
 
 import subprocess
@@ -29,7 +29,6 @@ for package in required_packages:
 
 import requests
 import socks
-import socket as sock
 try:
     from stem import Signal
     from stem.control import Controller
@@ -37,9 +36,8 @@ try:
 except:
     STEM_AVAILABLE = False
 
-# Color codes for professional terminal output
+# Color codes
 class Colors:
-    HEADER = '\033[95m'
     BLUE = '\033[94m'
     CYAN = '\033[96m'
     GREEN = '\033[92m'
@@ -47,57 +45,32 @@ class Colors:
     RED = '\033[91m'
     END = '\033[0m'
     BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
     PURPLE = '\033[35m'
     WHITE = '\033[97m'
     GRAY = '\033[90m'
 
+def clear_screen():
+    """Clear terminal screen"""
+    os.system('clear' if os.name != 'nt' else 'cls')
+
 def print_banner():
-    """Display professional banner"""
+    """Display clean professional banner"""
     banner = f"""{Colors.CYAN}{Colors.BOLD}
-    ============================================================
+    ================================================================
     
-         IP CHANGER - Advanced Network Identity Tool
+                      IP CHANGER v7.0 OPTIMIZED
     
-         GitHub: https://github.com/00xk/IP-Changer
-         Author: 00xk
-         Version: 6.0 FINAL
+              Fast, Reliable IP Rotation via TOR Network
     
-    ============================================================
+                 GitHub: github.com/00xk/IP-Changer
+                        Author: 00xk
+    
+    ================================================================
     {Colors.END}"""
     print(banner)
 
-def print_skull():
-    """Display skull ASCII art"""
-    skull = f"""{Colors.GRAY}
-                       _,.-------.,_
-                   ,;~'             '~;,
-                 ,;                     ;,
-                ;                         ;
-               ,'                         ',
-              ,;                           ;,
-              ; ;      .           .      ; ;
-              | ;   ______       ______   ; |
-              |  `/~"     ~" . "~     "~\'  |
-              |  ~  ,-~~~^~, | ,~^~~~-,  ~  |
-               |   |        :::       |   |
-               |   l       / | \\       !   |
-               .~  (__,.--" .^. "--.,__)  ~.
-               |     ---;' / | \\ `;---     |
-                \\__.       \\/^\\/       .__/
-             V| \\                   / |V
-              | |T~\\___!___!___!___/~T| |
-              | |`IIII_I_I_I_I_IIII'| |
-              |  \\,III I I I I III,/  |
-               \\   `~~~~~~~~~~'    /
-                 \\   .       .   /
-                   `;         ;'
-                     '~,___,~'
-    {Colors.END}"""
-    print(skull)
-
 def log(message, level="INFO"):
-    """Professional logging function"""
+    """Professional logging"""
     timestamp = datetime.now().strftime('%H:%M:%S')
     colors = {
         "INFO": Colors.CYAN,
@@ -109,442 +82,271 @@ def log(message, level="INFO"):
     color = colors.get(level, Colors.WHITE)
     print(f"{Colors.GRAY}[{timestamp}]{Colors.END} {color}[{level}]{Colors.END} {message}")
 
-def check_root():
-    """Check if running as root"""
-    if os.geteuid() != 0:
-        log("Running without root privileges - some features may be limited", "WARNING")
-        log("For full functionality, run with: sudo python3 ip_changer.py", "WARNING")
+def run_command(cmd, silent=True):
+    """Run command silently"""
+    try:
+        if silent:
+            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
+        else:
+            subprocess.run(cmd, check=True, timeout=10)
+        return True
+    except:
         return False
-    return True
 
-def get_public_ip(use_proxy=None):
-    """Get public IP address from multiple reliable sources"""
+def get_public_ip(timeout=5):
+    """Get public IP quickly"""
     apis = [
-        'https://api.ipify.org?format=json',
-        'https://ifconfig.me/ip',
+        'https://api.ipify.org',
         'https://icanhazip.com',
-        'https://ident.me',
-        'https://ipecho.net/plain',
-        'https://myexternalip.com/raw'
+        'https://ifconfig.me/ip'
     ]
-    
-    session = requests.Session()
-    if use_proxy:
-        session.proxies = {
-            'http': use_proxy,
-            'https': use_proxy
-        }
     
     for api in apis:
         try:
-            response = session.get(api, timeout=10)
+            response = requests.get(api, timeout=timeout)
             if response.status_code == 200:
-                ip_text = response.text.strip()
-                # Extract IP from JSON if needed
-                if 'ip' in ip_text:
-                    import json
-                    ip_text = json.loads(ip_text)['ip']
-                # Validate IP format
-                parts = ip_text.split('.')
-                if len(parts) == 4 and all(p.isdigit() and 0 <= int(p) <= 255 for p in parts):
-                    return ip_text
+                ip = response.text.strip()
+                if '.' in ip and len(ip) < 20:
+                    return ip
         except:
             continue
     return None
 
-def get_interface():
-    """Get default network interface"""
-    try:
-        result = subprocess.run(['ip', 'route'], capture_output=True, text=True)
-        for line in result.stdout.split('\n'):
-            if 'default' in line:
-                parts = line.split()
-                if 'dev' in parts:
-                    idx = parts.index('dev')
-                    return parts[idx + 1]
-    except:
-        pass
+def get_tor_ip(max_retries=3):
+    """Get IP through TOR with retries"""
+    tor_proxy = 'socks5h://127.0.0.1:9050'
+    
+    for attempt in range(max_retries):
+        try:
+            session = requests.Session()
+            session.proxies = {
+                'http': tor_proxy,
+                'https': tor_proxy
+            }
+            response = session.get('https://check.torproject.org/api/ip', timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('IsTor'):
+                    return data.get('IP')
+        except:
+            if attempt < max_retries - 1:
+                time.sleep(2)
+                continue
     return None
 
-def generate_random_mac():
-    """Generate random valid MAC address"""
-    mac = [0x00, 0x16, 0x3e,
-           random.randint(0x00, 0x7f),
-           random.randint(0x00, 0xff),
-           random.randint(0x00, 0xff)]
-    return ':'.join(map(lambda x: "%02x" % x, mac))
-
-def run_command(cmd, silent=True):
-    """Run shell command with error handling"""
+def check_tor_running():
+    """Quick check if TOR is running"""
     try:
-        if silent:
-            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        else:
-            subprocess.run(cmd, check=True)
-        return True
-    except:
-        return False
-
-def check_tor_status():
-    """Check if TOR is installed and running"""
-    tor_installed = run_command(['which', 'tor'])
-    if not tor_installed:
-        return "NOT_INSTALLED"
-    
-    tor_running = run_command(['systemctl', 'is-active', 'tor'])
-    if tor_running:
-        return "RUNNING"
-    
-    return "INSTALLED"
-
-def install_tor():
-    """Install TOR service"""
-    log("Attempting to install TOR...", "SYSTEM")
-    
-    # Try different package managers
-    package_managers = [
-        (['apt-get', 'update'], ['apt-get', 'install', '-y', 'tor']),
-        (None, ['yum', 'install', '-y', 'tor']),
-        (None, ['dnf', 'install', '-y', 'tor']),
-        (None, ['pacman', '-S', '--noconfirm', 'tor']),
-        (None, ['zypper', 'install', '-y', 'tor']),
-    ]
-    
-    for update_cmd, install_cmd in package_managers:
-        if update_cmd:
-            run_command(update_cmd)
-        
-        if run_command(install_cmd):
-            log("TOR installed successfully", "SUCCESS")
-            return True
-    
-    log("Failed to install TOR automatically", "ERROR")
-    log("Please install manually: sudo apt install tor", "WARNING")
-    return False
-
-def start_tor_service():
-    """Start TOR service"""
-    log("Starting TOR service...", "SYSTEM")
-    
-    # Try systemctl first
-    if run_command(['systemctl', 'start', 'tor']):
-        time.sleep(5)
-        if run_command(['systemctl', 'is-active', 'tor']):
-            log("TOR service started successfully", "SUCCESS")
-            return True
-    
-    # Try service command
-    if run_command(['service', 'tor', 'start']):
-        time.sleep(5)
-        log("TOR service started successfully", "SUCCESS")
-        return True
-    
-    # Try running tor directly
-    if run_command(['tor', '--runasdaemon', '1', '--quiet']):
-        time.sleep(5)
-        log("TOR daemon started successfully", "SUCCESS")
-        return True
-    
-    log("Failed to start TOR service", "ERROR")
-    return False
-
-def get_new_tor_identity():
-    """Request new TOR identity to change IP"""
-    try:
-        with Controller.from_port(port=9051) as controller:
-            controller.authenticate()
-            controller.signal(Signal.NEWNYM)
-            log("Requested new TOR circuit", "SUCCESS")
-            time.sleep(5)
-            return True
-    except:
-        # Fallback: restart TOR
-        log("Using TOR restart method...", "SYSTEM")
-        if run_command(['systemctl', 'restart', 'tor']):
-            time.sleep(8)
-            return True
-        elif run_command(['service', 'tor', 'restart']):
-            time.sleep(8)
-            return True
-    return False
-
-def verify_tor_connection():
-    """Verify that TOR is working"""
-    try:
-        # Check TOR port
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(2)
+        sock.settimeout(1)
         result = sock.connect_ex(('127.0.0.1', 9050))
         sock.close()
         return result == 0
     except:
         return False
 
-def setup_tor_method():
-    """Setup TOR for IP changing"""
-    log("Initializing TOR method...", "SYSTEM")
+def install_tor():
+    """Install TOR quickly"""
+    log("Installing TOR service...", "SYSTEM")
     
-    # Check TOR status
-    status = check_tor_status()
+    # Try apt-get first (most common)
+    if run_command(['apt-get', 'update']):
+        if run_command(['apt-get', 'install', '-y', 'tor']):
+            log("TOR installed successfully", "SUCCESS")
+            return True
     
-    if status == "NOT_INSTALLED":
-        log("TOR is not installed", "WARNING")
+    # Try other package managers
+    for cmd in [['yum', 'install', '-y', 'tor'], 
+                ['dnf', 'install', '-y', 'tor'],
+                ['pacman', '-S', '--noconfirm', 'tor']]:
+        if run_command(cmd):
+            log("TOR installed successfully", "SUCCESS")
+            return True
+    
+    log("Failed to install TOR. Please install manually: sudo apt install tor", "ERROR")
+    return False
+
+def start_tor():
+    """Start TOR service quickly"""
+    log("Starting TOR service...", "SYSTEM")
+    
+    # Try systemctl
+    if run_command(['systemctl', 'start', 'tor']):
+        time.sleep(3)
+        if check_tor_running():
+            log("TOR service started", "SUCCESS")
+            return True
+    
+    # Try service command
+    if run_command(['service', 'tor', 'start']):
+        time.sleep(3)
+        if check_tor_running():
+            log("TOR service started", "SUCCESS")
+            return True
+    
+    log("Failed to start TOR service", "ERROR")
+    return False
+
+def setup_tor():
+    """Setup TOR if not running"""
+    if check_tor_running():
+        log("TOR is already running", "SUCCESS")
+        return True
+    
+    # Check if installed
+    if not run_command(['which', 'tor']):
         if not install_tor():
             return False
     
-    if status != "RUNNING":
-        if not start_tor_service():
-            return False
-    
-    # Verify TOR is accessible
-    if not verify_tor_connection():
-        log("TOR service is not accessible on port 9050", "ERROR")
-        return False
-    
-    log("TOR setup complete", "SUCCESS")
-    return True
+    # Start service
+    return start_tor()
 
-def change_ip_via_tor():
-    """Change IP using TOR network"""
-    log("Changing IP via TOR network...", "SYSTEM")
+def change_tor_ip():
+    """Change TOR IP by requesting new circuit"""
+    try:
+        # Try using stem control
+        with Controller.from_port(port=9051) as controller:
+            controller.authenticate()
+            controller.signal(Signal.NEWNYM)
+            time.sleep(3)
+            return True
+    except:
+        # Fallback: restart TOR
+        if run_command(['systemctl', 'restart', 'tor']):
+            time.sleep(5)
+            return True
+        elif run_command(['service', 'tor', 'restart']):
+            time.sleep(5)
+            return True
+    return False
+
+def perform_ip_change():
+    """Main IP change function - optimized"""
+    print("\n" + "="*60)
+    log("STARTING IP CHANGE", "SYSTEM")
+    print("="*60 + "\n")
     
     # Setup TOR if needed
-    if not setup_tor_method():
+    if not setup_tor():
+        log("TOR setup failed. Cannot change IP.", "ERROR")
         return False, None, None
     
-    # Get current IP through TOR
-    tor_proxy = 'socks5h://127.0.0.1:9050'
-    old_ip = get_public_ip(use_proxy=tor_proxy)
+    # Get current TOR IP
+    log("Getting current TOR IP...", "INFO")
+    old_ip = get_tor_ip()
     
     if not old_ip:
-        log("Failed to get current TOR IP", "ERROR")
+        log("Cannot connect to TOR network", "ERROR")
+        log("Try: sudo systemctl restart tor", "WARNING")
         return False, None, None
     
-    log(f"Current TOR IP: {old_ip}", "INFO")
+    log(f"Current IP: {old_ip}", "INFO")
     
-    # Request new identity
-    if not get_new_tor_identity():
-        log("Failed to request new TOR identity", "ERROR")
+    # Request new circuit
+    log("Requesting new TOR circuit...", "SYSTEM")
+    if not change_tor_ip():
+        log("Failed to change TOR circuit", "ERROR")
         return False, old_ip, None
     
     # Get new IP
-    log("Verifying new IP address...", "SYSTEM")
-    time.sleep(3)
-    new_ip = get_public_ip(use_proxy=tor_proxy)
+    log("Verifying new IP...", "SYSTEM")
+    new_ip = get_tor_ip()
     
     if not new_ip:
         log("Failed to verify new IP", "ERROR")
         return False, old_ip, None
     
-    # Check if IP actually changed
+    # Check if changed
+    print("\n" + "="*60)
+    log("RESULTS", "SYSTEM")
+    print("="*60)
+    
     if old_ip != new_ip:
-        log(f"IP successfully changed: {old_ip} -> {new_ip}", "SUCCESS")
+        log(f"Old IP: {old_ip}", "INFO")
+        log(f"New IP: {new_ip}", "SUCCESS")
+        log("IP SUCCESSFULLY CHANGED", "SUCCESS")
         return True, old_ip, new_ip
     else:
-        log("IP did not change, retrying...", "WARNING")
-        # Retry once more
-        get_new_tor_identity()
-        time.sleep(5)
-        new_ip = get_public_ip(use_proxy=tor_proxy)
-        
-        if old_ip != new_ip:
-            log(f"IP changed on retry: {old_ip} -> {new_ip}", "SUCCESS")
-            return True, old_ip, new_ip
-        else:
-            log("IP still did not change", "ERROR")
-            return False, old_ip, new_ip
-
-def method_mac_spoof(interface):
-    """Spoof MAC address to potentially trigger new DHCP lease"""
-    if not interface:
-        return False
-    
-    log(f"Spoofing MAC address on {interface}...", "SYSTEM")
-    new_mac = generate_random_mac()
-    
-    success = False
-    
-    # Try macchanger if available
-    if run_command(['which', 'macchanger']):
-        if run_command(['macchanger', '-r', interface]):
-            log(f"MAC changed using macchanger", "SUCCESS")
-            success = True
-    
-    # Manual method
-    if not success:
-        if run_command(['ip', 'link', 'set', interface, 'down']):
-            if run_command(['ip', 'link', 'set', interface, 'address', new_mac]):
-                if run_command(['ip', 'link', 'set', interface, 'up']):
-                    log(f"MAC changed to {new_mac}", "SUCCESS")
-                    success = True
-    
-    if not success:
-        log("MAC spoofing failed (requires root)", "WARNING")
-    
-    return success
-
-def method_network_reset(interface):
-    """Reset network to request new DHCP lease"""
-    if not interface:
-        return False
-    
-    log("Performing network reset...", "SYSTEM")
-    
-    # Kill existing DHCP clients
-    run_command(['killall', 'dhclient'])
-    time.sleep(1)
-    
-    # Release and renew
-    success = False
-    if run_command(['dhclient', '-r', interface]):
-        time.sleep(2)
-        run_command(['ip', 'addr', 'flush', 'dev', interface])
-        run_command(['ip', 'link', 'set', interface, 'down'])
-        time.sleep(2)
-        run_command(['ip', 'link', 'set', interface, 'up'])
-        time.sleep(2)
-        if run_command(['dhclient', interface]):
-            log("Network reset complete", "SUCCESS")
-            success = True
-    
-    # Try NetworkManager
-    if run_command(['systemctl', 'restart', 'NetworkManager']):
-        time.sleep(5)
-        log("NetworkManager restarted", "SUCCESS")
-        success = True
-    
-    return success
-
-def change_ip_complete():
-    """Complete IP change using all available methods"""
-    print("\n" + "="*60)
-    log("INITIATING IP CHANGE SEQUENCE", "SYSTEM")
-    print("="*60 + "\n")
-    
-    # Get interface
-    interface = get_interface()
-    if interface:
-        log(f"Network interface: {interface}", "INFO")
-    
-    # Get initial IP (direct connection)
-    log("Checking initial public IP...", "INFO")
-    initial_direct_ip = get_public_ip()
-    if initial_direct_ip:
-        log(f"Current direct IP: {initial_direct_ip}", "INFO")
-    
-    # Apply network-level changes if root
-    if os.geteuid() == 0 and interface:
-        log("Applying network-level changes...", "SYSTEM")
-        method_mac_spoof(interface)
-        time.sleep(2)
-        method_network_reset(interface)
-        time.sleep(3)
-    
-    # Primary method: TOR
-    success, old_ip, new_ip = change_ip_via_tor()
-    
-    print("\n" + "="*60)
-    log("IP CHANGE RESULTS", "SYSTEM")
-    print("="*60)
-    
-    if success and old_ip and new_ip:
-        log(f"OLD IP: {old_ip}", "INFO")
-        log(f"NEW IP: {new_ip}", "SUCCESS")
-        log("STATUS: IP SUCCESSFULLY CHANGED", "SUCCESS")
-        log("METHOD: TOR Network", "INFO")
-        log("Your traffic is now routed through TOR", "INFO")
-        return True, old_ip, new_ip
-    else:
-        log("STATUS: IP CHANGE FAILED", "ERROR")
-        log("Possible reasons:", "WARNING")
-        log("  1. TOR service not running properly", "WARNING")
-        log("  2. Network connectivity issues", "WARNING")
-        log("  3. TOR ports blocked by firewall", "WARNING")
-        log("\nTroubleshooting steps:", "INFO")
-        log("  1. Check TOR: sudo systemctl status tor", "INFO")
-        log("  2. Restart TOR: sudo systemctl restart tor", "INFO")
-        log("  3. Check logs: sudo journalctl -u tor -n 50", "INFO")
-        return False, old_ip if old_ip else "Unknown", new_ip if new_ip else "Unknown"
-
-def print_stats(successful, failed, start_time, ip_history):
-    """Print session statistics"""
-    runtime = time.time() - start_time
-    hours, remainder = divmod(int(runtime), 3600)
-    minutes, seconds = divmod(remainder, 60)
-    
-    print("\n" + "="*60)
-    print(f"{Colors.BOLD}SESSION STATISTICS{Colors.END}")
-    print("="*60)
-    print(f"Successful changes: {Colors.GREEN}{successful}{Colors.END}")
-    print(f"Failed attempts: {Colors.RED}{failed}{Colors.END}")
-    print(f"Total runtime: {hours:02d}:{minutes:02d}:{seconds:02d}")
-    print("\nIP Change History:")
-    print("-"*60)
-    
-    for old_ip, new_ip, timestamp in ip_history[-10:]:
-        if old_ip != new_ip:
-            status = f"{Colors.GREEN}SUCCESS{Colors.END}"
-        else:
-            status = f"{Colors.YELLOW}NO CHANGE{Colors.END}"
-        print(f"[{timestamp}] {status} | {old_ip} -> {new_ip}")
-    
-    print("="*60 + "\n")
+        log(f"IP: {old_ip}", "WARNING")
+        log("IP DID NOT CHANGE - Retrying in next cycle", "WARNING")
+        return False, old_ip, new_ip
 
 def check_for_updates():
-    """Check for updates from GitHub"""
-    log("Checking for updates...", "SYSTEM")
+    """Check GitHub for updates"""
     try:
-        response = requests.get('https://api.github.com/repos/00xk/IP-Changer/releases/latest', timeout=5)
+        response = requests.get('https://api.github.com/repos/00xk/IP-Changer/commits/main', timeout=5)
         if response.status_code == 200:
-            latest_version = response.json().get('tag_name', 'unknown')
-            log(f"Latest version on GitHub: {latest_version}", "INFO")
-            log("To update, run: git pull origin main", "INFO")
+            commit = response.json()
+            log(f"Latest commit: {commit['commit']['message'][:50]}", "INFO")
+            return True
     except:
-        log("Could not check for updates", "WARNING")
+        pass
+    return False
 
-def main():
-    """Main program loop"""
-    # Check root
-    is_root = check_root()
+def update_tool():
+    """Update from GitHub"""
+    log("Updating from GitHub...", "SYSTEM")
     
-    # Display banner
+    if run_command(['git', 'pull', 'origin', 'main'], silent=False):
+        log("Update successful!", "SUCCESS")
+        log("Please restart the script", "INFO")
+        return True
+    else:
+        log("Update failed. Make sure you cloned the repo with git.", "ERROR")
+        log("Manual update:", "INFO")
+        print("  1. cd IP-Changer")
+        print("  2. git pull origin main")
+        return False
+
+def show_menu():
+    """Display main menu"""
+    clear_screen()
     print_banner()
-    print_skull()
+    print(f"\n{Colors.BOLD}MAIN MENU{Colors.END}\n")
+    print(f"  {Colors.CYAN}[1]{Colors.END} Start IP Changer")
+    print(f"  {Colors.YELLOW}[2]{Colors.END} Update from GitHub")
+    print(f"  {Colors.RED}[3]{Colors.END} Exit")
+    print()
+
+def run_ip_changer():
+    """Run the IP changer main loop"""
+    clear_screen()
+    print_banner()
     
-    # Check for updates
-    check_for_updates()
+    # Check root
+    if os.geteuid() != 0:
+        log("Running without root - this is OK for TOR method", "WARNING")
     
     # System info
     print("\n" + "="*60)
-    log("SYSTEM INFORMATION", "SYSTEM")
+    log("SYSTEM CHECK", "SYSTEM")
     print("="*60)
-    log(f"Platform: Linux", "INFO")
-    log(f"Root access: {'Yes' if is_root else 'No (limited features)'}", "INFO")
-    
-    interface = get_interface()
-    if interface:
-        log(f"Network interface: {interface}", "INFO")
     
     direct_ip = get_public_ip()
     if direct_ip:
-        log(f"Current public IP: {direct_ip}", "INFO")
+        log(f"Your direct IP: {direct_ip}", "INFO")
+    
+    # Check TOR
+    if check_tor_running():
+        log("TOR is running", "SUCCESS")
+    else:
+        log("TOR is not running - will attempt to start", "WARNING")
     
     print("="*60)
     
     # Configuration
     print(f"\n{Colors.BOLD}CONFIGURATION{Colors.END}")
     try:
-        interval_input = input(f"{Colors.CYAN}[?]{Colors.END} Enter rotation interval in seconds (default: 10): ").strip()
-        interval = int(interval_input) if interval_input else 10
+        interval = input(f"{Colors.CYAN}[?]{Colors.END} Rotation interval in seconds (default: 10): ").strip()
+        interval = int(interval) if interval else 10
         if interval < 5:
-            log("Minimum interval is 5 seconds", "WARNING")
+            log("Using minimum interval: 5 seconds", "WARNING")
             interval = 5
     except:
         interval = 10
-        log("Using default interval: 10 seconds", "INFO")
     
-    log(f"IP rotation interval set to {interval} seconds", "SUCCESS")
-    log("Press Ctrl+C to stop", "INFO")
+    log(f"Interval set to {interval} seconds", "SUCCESS")
+    log("Press Ctrl+C to stop and return to menu", "INFO")
     
     # Main loop
     successful = 0
@@ -554,35 +356,92 @@ def main():
     
     try:
         while True:
-            result, old_ip, new_ip = change_ip_complete()
+            result, old_ip, new_ip = perform_ip_change()
             
             timestamp = datetime.now().strftime('%H:%M:%S')
-            ip_history.append((old_ip, new_ip, timestamp))
+            if old_ip and new_ip:
+                ip_history.append((old_ip, new_ip, timestamp))
             
             if result:
                 successful += 1
             else:
                 failed += 1
             
-            log(f"Next rotation in {interval} seconds...", "INFO")
-            time.sleep(interval)
+            log(f"Stats: {successful} success, {failed} failed", "INFO")
+            log(f"Next change in {interval} seconds...", "INFO")
+            
+            for remaining in range(interval, 0, -1):
+                print(f"\r{Colors.GRAY}[WAIT]{Colors.END} {remaining}s ", end='', flush=True)
+                time.sleep(1)
+            print()
             
     except KeyboardInterrupt:
-        print("\n")
-        log("Stopping IP rotation service...", "WARNING")
-        print_stats(successful, failed, start_time, ip_history)
-        log("Session terminated", "SYSTEM")
-        log("GitHub: https://github.com/00xk/IP-Changer", "INFO")
+        # Show statistics
+        runtime = time.time() - start_time
+        hours, remainder = divmod(int(runtime), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        
+        print("\n\n" + "="*60)
+        print(f"{Colors.BOLD}SESSION STATISTICS{Colors.END}")
+        print("="*60)
+        print(f"Successful changes: {Colors.GREEN}{successful}{Colors.END}")
+        print(f"Failed attempts: {Colors.RED}{failed}{Colors.END}")
+        print(f"Runtime: {hours:02d}:{minutes:02d}:{seconds:02d}")
+        
+        if ip_history:
+            print(f"\nLast 5 IP changes:")
+            print("-"*60)
+            for old_ip, new_ip, ts in ip_history[-5:]:
+                status = f"{Colors.GREEN}OK{Colors.END}" if old_ip != new_ip else f"{Colors.YELLOW}SAME{Colors.END}"
+                print(f"[{ts}] {status} | {old_ip} -> {new_ip}")
+        
+        print("="*60)
+        input(f"\n{Colors.CYAN}Press Enter to return to menu...{Colors.END}")
 
-if __name__ == "__main__":
+def main():
+    """Main program with menu"""
     if platform.system() != "Linux":
-        print("ERROR: This tool is designed for Linux only")
+        print("ERROR: This tool is for Linux only")
         sys.exit(1)
     
+    while True:
+        show_menu()
+        
+        try:
+            choice = input(f"{Colors.CYAN}[?]{Colors.END} Select option: ").strip()
+            
+            if choice == "1":
+                run_ip_changer()
+            
+            elif choice == "2":
+                clear_screen()
+                print_banner()
+                print()
+                check_for_updates()
+                update_tool()
+                input(f"\n{Colors.CYAN}Press Enter to continue...{Colors.END}")
+            
+            elif choice == "3":
+                clear_screen()
+                log("Exiting IP Changer", "SYSTEM")
+                log("GitHub: https://github.com/00xk/IP-Changer", "INFO")
+                print()
+                sys.exit(0)
+            
+            else:
+                log("Invalid option. Please select 1, 2, or 3.", "ERROR")
+                time.sleep(2)
+        
+        except KeyboardInterrupt:
+            print()
+            sys.exit(0)
+        except Exception as e:
+            log(f"Error: {str(e)}", "ERROR")
+            time.sleep(2)
+
+if __name__ == "__main__":
     try:
         main()
     except Exception as e:
         print(f"\nFATAL ERROR: {str(e)}")
-        import traceback
-        traceback.print_exc()
         sys.exit(1)
