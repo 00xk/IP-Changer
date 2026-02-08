@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Advanced IP Address Rotator - AUTO-INSTALL VERSION
-Automatically installs required packages
+IP CHANGER - Professional Network Tool
+GitHub: https://github.com/00xk/IP-Changer
+Author: 00xk
+Version: 6.0 FINAL
+
+This tool uses TOR network and advanced techniques to change your public IP address.
 """
 
 import subprocess
@@ -9,325 +13,540 @@ import sys
 import time
 import platform
 import os
+import random
+import socket
 from datetime import datetime
 
-# Auto-install requests if missing
-try:
-    import requests
-except ImportError:
-    print("📦 Installing required package 'requests'...")
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'requests'])
-    import requests
+# Auto-install required packages
+required_packages = ['requests', 'stem', 'PySocks']
+for package in required_packages:
+    try:
+        __import__(package if package != 'PySocks' else 'socks')
+    except ImportError:
+        print(f"[*] Installing {package}...")
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', package, '--break-system-packages'], 
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-# Color codes for terminal
+import requests
+import socks
+import socket as sock
+try:
+    from stem import Signal
+    from stem.control import Controller
+    STEM_AVAILABLE = True
+except:
+    STEM_AVAILABLE = False
+
+# Color codes for professional terminal output
 class Colors:
     HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
+    BLUE = '\033[94m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    END = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     PURPLE = '\033[35m'
-    YELLOW = '\033[33m'
-    CYAN = '\033[36m'
     WHITE = '\033[97m'
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-
-def print_skull():
-    """Display ASCII skull art"""
-    skull = f"""
-{Colors.RED}                    {Colors.BOLD}
-                   .--.
-                  /.-. '----------.
-                  \'-' .--"--""-"-'
-                   '--'
-                      
-            {Colors.WHITE}       .---.
-            {Colors.WHITE}      /. ./|
-            {Colors.WHITE}      '. '\" |  {Colors.RED}uuuu {Colors.YELLOW}_____{Colors.RED} uuuu
-            {Colors.WHITE}       '---'  {Colors.RED}u\" u \"{Colors.YELLOW}|   |{Colors.RED}u\" u\"
-            {Colors.WHITE}       .---.  {Colors.RED} >u<  {Colors.YELLOW}|   |{Colors.RED} >u<
-            {Colors.WHITE}      /. ./|  {Colors.RED}u\" u \"{Colors.YELLOW}|   |{Colors.RED}u\" u\"
-            {Colors.WHITE}      '. '\" |  {Colors.RED} >u<  {Colors.YELLOW}|___|{Colors.RED} >u<
-            {Colors.WHITE}       '---'  {Colors.RED}u\" u \"{Colors.YELLOW} |_| {Colors.RED}u\" u\"
-            {Colors.WHITE}              {Colors.RED} >u<   {Colors.YELLOW}'-'{Colors.RED}  >u<
-            {Colors.WHITE}              {Colors.RED}u\" u\"      u\" u\"
-{Colors.ENDC}"""
-    print(skull)
+    GRAY = '\033[90m'
 
 def print_banner():
-    """Display colorful ASCII art banner"""
-    banner = f"""
-{Colors.CYAN}╔═══════════════════════════════════════════════════════════════════════╗
-║                                                                       ║
-║ {Colors.BOLD}{Colors.PURPLE}██╗██████╗      ██████╗ ██╗  ██╗ █████╗ ███╗   ██╗ ██████╗ ███████╗██████╗{Colors.ENDC}{Colors.CYAN}  ║
-║ {Colors.BOLD}{Colors.PURPLE}██║██╔══██╗    ██╔════╝ ██║  ██║██╔══██╗████╗  ██║██╔════╝ ██╔════╝██╔══██╗{Colors.ENDC}{Colors.CYAN} ║
-║ {Colors.BOLD}{Colors.PURPLE}██║██████╔╝    ██║      ███████║███████║██╔██╗ ██║██║  ███╗█████╗  ██████╔╝{Colors.ENDC}{Colors.CYAN} ║
-║ {Colors.BOLD}{Colors.PURPLE}██║██╔═══╝     ██║      ██╔══██║██╔══██║██║╚██╗██║██║   ██║██╔══╝  ██╔══██╗{Colors.ENDC}{Colors.CYAN} ║
-║ {Colors.BOLD}{Colors.PURPLE}██║██║         ╚██████╗ ██║  ██║██║  ██║██║ ╚████║╚██████╔╝███████╗██║  ██║{Colors.ENDC}{Colors.CYAN} ║
-║ {Colors.BOLD}{Colors.PURPLE}╚═╝╚═╝          ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝{Colors.ENDC}{Colors.CYAN} ║
-║                                                                       ║
-║            {Colors.YELLOW}⚡ Advanced IP Address Rotator v3.0 EXTREME ⚡{Colors.ENDC}{Colors.CYAN}            ║
-║                                                                       ║
-╚═══════════════════════════════════════════════════════════════════════╝{Colors.ENDC}
-"""
+    """Display professional banner"""
+    banner = f"""{Colors.CYAN}{Colors.BOLD}
+    ============================================================
+    
+         IP CHANGER - Advanced Network Identity Tool
+    
+         GitHub: https://github.com/00xk/IP-Changer
+         Author: 00xk
+         Version: 6.0 FINAL
+    
+    ============================================================
+    {Colors.END}"""
     print(banner)
-    print_skull()
 
-def print_colored(message, color=Colors.WHITE, end='\n'):
-    """Print colored message"""
-    print(f"{color}{message}{Colors.ENDC}", end=end)
+def print_skull():
+    """Display skull ASCII art"""
+    skull = f"""{Colors.GRAY}
+                       _,.-------.,_
+                   ,;~'             '~;,
+                 ,;                     ;,
+                ;                         ;
+               ,'                         ',
+              ,;                           ;,
+              ; ;      .           .      ; ;
+              | ;   ______       ______   ; |
+              |  `/~"     ~" . "~     "~\'  |
+              |  ~  ,-~~~^~, | ,~^~~~-,  ~  |
+               |   |        }:{        |   |
+               |   l       / | \\       !   |
+               .~  (__,.--" .^. "--.,__)  ~.
+               |     ---;' / | \\ `;---     |
+                \\__.       \\/^\\/       .__/
+             V| \\                   / |V
+              | |T~\\___!___!___!___/~T| |
+              | |`IIII_I_I_I_I_IIII'| |
+              |  \\,III I I I I III,/  |
+               \\   `~~~~~~~~~~'    /
+                 \\   .       .   /
+                   `;         ;'
+                     '~,___,~'
+    {Colors.END}"""
+    print(skull)
 
-def get_public_ip():
-    """Get public IP address from external API"""
+def log(message, level="INFO"):
+    """Professional logging function"""
+    timestamp = datetime.now().strftime('%H:%M:%S')
+    colors = {
+        "INFO": Colors.CYAN,
+        "SUCCESS": Colors.GREEN,
+        "WARNING": Colors.YELLOW,
+        "ERROR": Colors.RED,
+        "SYSTEM": Colors.PURPLE
+    }
+    color = colors.get(level, Colors.WHITE)
+    print(f"{Colors.GRAY}[{timestamp}]{Colors.END} {color}[{level}]{Colors.END} {message}")
+
+def check_root():
+    """Check if running as root"""
+    if os.geteuid() != 0:
+        log("Running without root privileges - some features may be limited", "WARNING")
+        log("For full functionality, run with: sudo python3 ip_changer.py", "WARNING")
+        return False
+    return True
+
+def get_public_ip(use_proxy=None):
+    """Get public IP address from multiple reliable sources"""
     apis = [
-        'https://api.ipify.org',
+        'https://api.ipify.org?format=json',
+        'https://ifconfig.me/ip',
         'https://icanhazip.com',
-        'https://ipinfo.io/ip',
         'https://ident.me',
-        'https://checkip.amazonaws.com'
+        'https://ipecho.net/plain',
+        'https://myexternalip.com/raw'
     ]
+    
+    session = requests.Session()
+    if use_proxy:
+        session.proxies = {
+            'http': use_proxy,
+            'https': use_proxy
+        }
     
     for api in apis:
         try:
-            response = requests.get(api, timeout=5)
+            response = session.get(api, timeout=10)
             if response.status_code == 200:
-                return response.text.strip()
+                ip_text = response.text.strip()
+                # Extract IP from JSON if needed
+                if 'ip' in ip_text:
+                    import json
+                    ip_text = json.loads(ip_text)['ip']
+                # Validate IP format
+                parts = ip_text.split('.')
+                if len(parts) == 4 and all(p.isdigit() and 0 <= int(p) <= 255 for p in parts):
+                    return ip_text
         except:
             continue
-    return "Unable to fetch"
+    return None
 
-def get_local_ip():
-    """Get local IP address"""
+def get_interface():
+    """Get default network interface"""
     try:
-        if platform.system() == "Linux":
-            result = subprocess.run(['hostname', '-I'], capture_output=True, text=True)
-            ip = result.stdout.split()[0]
-        elif platform.system() == "Windows":
-            result = subprocess.run(['ipconfig'], capture_output=True, text=True)
-            for line in result.stdout.split('\n'):
-                if 'IPv4' in line:
-                    ip = line.split(':')[1].strip()
-                    break
-            else:
-                ip = "Unknown"
-        else:
-            ip = "Unknown"
-        return ip
-    except:
-        return "Unknown"
-
-def change_ip_linux():
-    """Change IP on Linux using multiple methods"""
-    try:
-        print_colored("\n┌──────────────────────────────────────────────┐", Colors.CYAN)
-        print_colored("│  💀 INITIATING IP ROTATION (Linux)...       │", Colors.CYAN)
-        print_colored("└──────────────────────────────────────────────┘", Colors.CYAN)
-        
-        # Get the default network interface
         result = subprocess.run(['ip', 'route'], capture_output=True, text=True)
-        interface = result.stdout.split()[4]
-        
-        old_public_ip = get_public_ip()
-        old_local_ip = get_local_ip()
-        
-        print_colored(f"   📡 Interface: {interface}", Colors.OKCYAN)
-        print_colored(f"   📍 Old Public IP: {old_public_ip}", Colors.WARNING)
-        print_colored(f"   🏠 Old Local IP: {old_local_ip}", Colors.WARNING)
-        
-        # Method 1: Release DHCP lease
-        print_colored("   ⚡ Method 1: Releasing DHCP lease...", Colors.YELLOW)
-        subprocess.run(['sudo', 'dhclient', '-r', interface], 
-                      stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
-        time.sleep(2)
-        
-        # Method 2: Bring interface down
-        print_colored("   ⚡ Method 2: Shutting down interface...", Colors.YELLOW)
-        subprocess.run(['sudo', 'ip', 'link', 'set', interface, 'down'], 
-                      check=True, stderr=subprocess.DEVNULL)
-        time.sleep(3)
-        
-        # Method 3: Bring interface up
-        print_colored("   ⚡ Method 3: Bringing interface back up...", Colors.YELLOW)
-        subprocess.run(['sudo', 'ip', 'link', 'set', interface, 'up'], 
-                      check=True, stderr=subprocess.DEVNULL)
-        time.sleep(2)
-        
-        # Method 4: Request new DHCP lease
-        print_colored("   ⚡ Method 4: Requesting new DHCP lease...", Colors.YELLOW)
-        subprocess.run(['sudo', 'dhclient', interface], 
-                      check=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
-        
-        # Method 5: Flush DNS and renew
-        print_colored("   ⚡ Method 5: Flushing DNS cache...", Colors.YELLOW)
-        subprocess.run(['sudo', 'systemd-resolve', '--flush-caches'], 
-                      stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
-        
-        time.sleep(3)
-        
-        new_public_ip = get_public_ip()
-        new_local_ip = get_local_ip()
-        
-        print_colored("\n   ═══════════════════════════════════════════", Colors.GREEN)
-        print_colored(f"   ✅ New Public IP: {new_public_ip}", Colors.OKGREEN)
-        print_colored(f"   🏠 New Local IP: {new_local_ip}", Colors.OKGREEN)
-        print_colored(f"   🕐 Changed at: {datetime.now().strftime('%H:%M:%S')}", Colors.OKBLUE)
-        print_colored("   ═══════════════════════════════════════════", Colors.GREEN)
-        
-        if old_public_ip != new_public_ip:
-            print_colored(f"   💀 PUBLIC IP SUCCESSFULLY CHANGED! 💀", Colors.BOLD + Colors.GREEN)
-            return True, old_public_ip, new_public_ip
-        else:
-            print_colored(f"   ⚠️  WARNING: Public IP didn't change", Colors.WARNING)
-            print_colored(f"   ℹ️  Your ISP may not assign new IPs on reconnect", Colors.WARNING)
-            print_colored(f"   💡 Consider using a VPN for true IP rotation", Colors.CYAN)
-            return False, old_public_ip, new_public_ip
-            
-    except subprocess.CalledProcessError as e:
-        print_colored(f"   ❌ Error: Failed to change IP", Colors.FAIL)
-        print_colored(f"   ℹ️  Make sure you run with 'sudo'", Colors.WARNING)
-        return False, "Error", "Error"
-    except Exception as e:
-        print_colored(f"   ❌ Error: {str(e)}", Colors.FAIL)
-        return False, "Error", "Error"
+        for line in result.stdout.split('\n'):
+            if 'default' in line:
+                parts = line.split()
+                if 'dev' in parts:
+                    idx = parts.index('dev')
+                    return parts[idx + 1]
+    except:
+        pass
+    return None
 
-def change_ip_windows():
-    """Change IP on Windows using multiple methods"""
+def generate_random_mac():
+    """Generate random valid MAC address"""
+    mac = [0x00, 0x16, 0x3e,
+           random.randint(0x00, 0x7f),
+           random.randint(0x00, 0xff),
+           random.randint(0x00, 0xff)]
+    return ':'.join(map(lambda x: "%02x" % x, mac))
+
+def run_command(cmd, silent=True):
+    """Run shell command with error handling"""
     try:
-        print_colored("\n┌──────────────────────────────────────────────┐", Colors.CYAN)
-        print_colored("│  💀 INITIATING IP ROTATION (Windows)...     │", Colors.CYAN)
-        print_colored("└──────────────────────────────────────────────┘", Colors.CYAN)
-        
-        old_public_ip = get_public_ip()
-        old_local_ip = get_local_ip()
-        
-        print_colored(f"   📍 Old Public IP: {old_public_ip}", Colors.WARNING)
-        print_colored(f"   🏠 Old Local IP: {old_local_ip}", Colors.WARNING)
-        
-        # Method 1: Release IP
-        print_colored("   ⚡ Method 1: Releasing IP address...", Colors.YELLOW)
-        subprocess.run(['ipconfig', '/release'], 
-                      check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(3)
-        
-        # Method 2: Flush DNS
-        print_colored("   ⚡ Method 2: Flushing DNS cache...", Colors.YELLOW)
-        subprocess.run(['ipconfig', '/flushdns'], 
-                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(1)
-        
-        # Method 3: Renew IP
-        print_colored("   ⚡ Method 3: Renewing IP address...", Colors.YELLOW)
-        subprocess.run(['ipconfig', '/renew'], 
-                      check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(3)
-        
-        # Method 4: Reset Winsock
-        print_colored("   ⚡ Method 4: Resetting network stack...", Colors.YELLOW)
-        subprocess.run(['netsh', 'winsock', 'reset'], 
-                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        
-        time.sleep(2)
-        
-        new_public_ip = get_public_ip()
-        new_local_ip = get_local_ip()
-        
-        print_colored("\n   ═══════════════════════════════════════════", Colors.GREEN)
-        print_colored(f"   ✅ New Public IP: {new_public_ip}", Colors.OKGREEN)
-        print_colored(f"   🏠 New Local IP: {new_local_ip}", Colors.OKGREEN)
-        print_colored(f"   🕐 Changed at: {datetime.now().strftime('%H:%M:%S')}", Colors.OKBLUE)
-        print_colored("   ═══════════════════════════════════════════", Colors.GREEN)
-        
-        if old_public_ip != new_public_ip:
-            print_colored(f"   💀 PUBLIC IP SUCCESSFULLY CHANGED! 💀", Colors.BOLD + Colors.GREEN)
-            return True, old_public_ip, new_public_ip
+        if silent:
+            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
-            print_colored(f"   ⚠️  WARNING: Public IP didn't change", Colors.WARNING)
-            print_colored(f"   ℹ️  Your ISP may not assign new IPs on reconnect", Colors.WARNING)
-            print_colored(f"   💡 Consider using a VPN for true IP rotation", Colors.CYAN)
-            return False, old_public_ip, new_public_ip
-            
-    except subprocess.CalledProcessError:
-        print_colored(f"   ❌ Error: Failed to change IP", Colors.FAIL)
-        print_colored(f"   ℹ️  Make sure you run as Administrator", Colors.WARNING)
-        return False, "Error", "Error"
-    except Exception as e:
-        print_colored(f"   ❌ Error: {str(e)}", Colors.FAIL)
-        return False, "Error", "Error"
+            subprocess.run(cmd, check=True)
+        return True
+    except:
+        return False
+
+def check_tor_status():
+    """Check if TOR is installed and running"""
+    tor_installed = run_command(['which', 'tor'])
+    if not tor_installed:
+        return "NOT_INSTALLED"
+    
+    tor_running = run_command(['systemctl', 'is-active', 'tor'])
+    if tor_running:
+        return "RUNNING"
+    
+    return "INSTALLED"
+
+def install_tor():
+    """Install TOR service"""
+    log("Attempting to install TOR...", "SYSTEM")
+    
+    # Try different package managers
+    package_managers = [
+        (['apt-get', 'update'], ['apt-get', 'install', '-y', 'tor']),
+        (None, ['yum', 'install', '-y', 'tor']),
+        (None, ['dnf', 'install', '-y', 'tor']),
+        (None, ['pacman', '-S', '--noconfirm', 'tor']),
+        (None, ['zypper', 'install', '-y', 'tor']),
+    ]
+    
+    for update_cmd, install_cmd in package_managers:
+        if update_cmd:
+            run_command(update_cmd)
+        
+        if run_command(install_cmd):
+            log("TOR installed successfully", "SUCCESS")
+            return True
+    
+    log("Failed to install TOR automatically", "ERROR")
+    log("Please install manually: sudo apt install tor", "WARNING")
+    return False
+
+def start_tor_service():
+    """Start TOR service"""
+    log("Starting TOR service...", "SYSTEM")
+    
+    # Try systemctl first
+    if run_command(['systemctl', 'start', 'tor']):
+        time.sleep(5)
+        if run_command(['systemctl', 'is-active', 'tor']):
+            log("TOR service started successfully", "SUCCESS")
+            return True
+    
+    # Try service command
+    if run_command(['service', 'tor', 'start']):
+        time.sleep(5)
+        log("TOR service started successfully", "SUCCESS")
+        return True
+    
+    # Try running tor directly
+    if run_command(['tor', '--runasdaemon', '1', '--quiet']):
+        time.sleep(5)
+        log("TOR daemon started successfully", "SUCCESS")
+        return True
+    
+    log("Failed to start TOR service", "ERROR")
+    return False
+
+def get_new_tor_identity():
+    """Request new TOR identity to change IP"""
+    try:
+        with Controller.from_port(port=9051) as controller:
+            controller.authenticate()
+            controller.signal(Signal.NEWNYM)
+            log("Requested new TOR circuit", "SUCCESS")
+            time.sleep(5)
+            return True
+    except:
+        # Fallback: restart TOR
+        log("Using TOR restart method...", "SYSTEM")
+        if run_command(['systemctl', 'restart', 'tor']):
+            time.sleep(8)
+            return True
+        elif run_command(['service', 'tor', 'restart']):
+            time.sleep(8)
+            return True
+    return False
+
+def verify_tor_connection():
+    """Verify that TOR is working"""
+    try:
+        # Check TOR port
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(2)
+        result = sock.connect_ex(('127.0.0.1', 9050))
+        sock.close()
+        return result == 0
+    except:
+        return False
+
+def setup_tor_method():
+    """Setup TOR for IP changing"""
+    log("Initializing TOR method...", "SYSTEM")
+    
+    # Check TOR status
+    status = check_tor_status()
+    
+    if status == "NOT_INSTALLED":
+        log("TOR is not installed", "WARNING")
+        if not install_tor():
+            return False
+    
+    if status != "RUNNING":
+        if not start_tor_service():
+            return False
+    
+    # Verify TOR is accessible
+    if not verify_tor_connection():
+        log("TOR service is not accessible on port 9050", "ERROR")
+        return False
+    
+    log("TOR setup complete", "SUCCESS")
+    return True
+
+def change_ip_via_tor():
+    """Change IP using TOR network"""
+    log("Changing IP via TOR network...", "SYSTEM")
+    
+    # Setup TOR if needed
+    if not setup_tor_method():
+        return False, None, None
+    
+    # Get current IP through TOR
+    tor_proxy = 'socks5h://127.0.0.1:9050'
+    old_ip = get_public_ip(use_proxy=tor_proxy)
+    
+    if not old_ip:
+        log("Failed to get current TOR IP", "ERROR")
+        return False, None, None
+    
+    log(f"Current TOR IP: {old_ip}", "INFO")
+    
+    # Request new identity
+    if not get_new_tor_identity():
+        log("Failed to request new TOR identity", "ERROR")
+        return False, old_ip, None
+    
+    # Get new IP
+    log("Verifying new IP address...", "SYSTEM")
+    time.sleep(3)
+    new_ip = get_public_ip(use_proxy=tor_proxy)
+    
+    if not new_ip:
+        log("Failed to verify new IP", "ERROR")
+        return False, old_ip, None
+    
+    # Check if IP actually changed
+    if old_ip != new_ip:
+        log(f"IP successfully changed: {old_ip} -> {new_ip}", "SUCCESS")
+        return True, old_ip, new_ip
+    else:
+        log("IP did not change, retrying...", "WARNING")
+        # Retry once more
+        get_new_tor_identity()
+        time.sleep(5)
+        new_ip = get_public_ip(use_proxy=tor_proxy)
+        
+        if old_ip != new_ip:
+            log(f"IP changed on retry: {old_ip} -> {new_ip}", "SUCCESS")
+            return True, old_ip, new_ip
+        else:
+            log("IP still did not change", "ERROR")
+            return False, old_ip, new_ip
+
+def method_mac_spoof(interface):
+    """Spoof MAC address to potentially trigger new DHCP lease"""
+    if not interface:
+        return False
+    
+    log(f"Spoofing MAC address on {interface}...", "SYSTEM")
+    new_mac = generate_random_mac()
+    
+    success = False
+    
+    # Try macchanger if available
+    if run_command(['which', 'macchanger']):
+        if run_command(['macchanger', '-r', interface]):
+            log(f"MAC changed using macchanger", "SUCCESS")
+            success = True
+    
+    # Manual method
+    if not success:
+        if run_command(['ip', 'link', 'set', interface, 'down']):
+            if run_command(['ip', 'link', 'set', interface, 'address', new_mac]):
+                if run_command(['ip', 'link', 'set', interface, 'up']):
+                    log(f"MAC changed to {new_mac}", "SUCCESS")
+                    success = True
+    
+    if not success:
+        log("MAC spoofing failed (requires root)", "WARNING")
+    
+    return success
+
+def method_network_reset(interface):
+    """Reset network to request new DHCP lease"""
+    if not interface:
+        return False
+    
+    log("Performing network reset...", "SYSTEM")
+    
+    # Kill existing DHCP clients
+    run_command(['killall', 'dhclient'])
+    time.sleep(1)
+    
+    # Release and renew
+    success = False
+    if run_command(['dhclient', '-r', interface]):
+        time.sleep(2)
+        run_command(['ip', 'addr', 'flush', 'dev', interface])
+        run_command(['ip', 'link', 'set', interface, 'down'])
+        time.sleep(2)
+        run_command(['ip', 'link', 'set', interface, 'up'])
+        time.sleep(2)
+        if run_command(['dhclient', interface]):
+            log("Network reset complete", "SUCCESS")
+            success = True
+    
+    # Try NetworkManager
+    if run_command(['systemctl', 'restart', 'NetworkManager']):
+        time.sleep(5)
+        log("NetworkManager restarted", "SUCCESS")
+        success = True
+    
+    return success
+
+def change_ip_complete():
+    """Complete IP change using all available methods"""
+    print("\n" + "="*60)
+    log("INITIATING IP CHANGE SEQUENCE", "SYSTEM")
+    print("="*60 + "\n")
+    
+    # Get interface
+    interface = get_interface()
+    if interface:
+        log(f"Network interface: {interface}", "INFO")
+    
+    # Get initial IP (direct connection)
+    log("Checking initial public IP...", "INFO")
+    initial_direct_ip = get_public_ip()
+    if initial_direct_ip:
+        log(f"Current direct IP: {initial_direct_ip}", "INFO")
+    
+    # Apply network-level changes if root
+    if os.geteuid() == 0 and interface:
+        log("Applying network-level changes...", "SYSTEM")
+        method_mac_spoof(interface)
+        time.sleep(2)
+        method_network_reset(interface)
+        time.sleep(3)
+    
+    # Primary method: TOR
+    success, old_ip, new_ip = change_ip_via_tor()
+    
+    print("\n" + "="*60)
+    log("IP CHANGE RESULTS", "SYSTEM")
+    print("="*60)
+    
+    if success and old_ip and new_ip:
+        log(f"OLD IP: {old_ip}", "INFO")
+        log(f"NEW IP: {new_ip}", "SUCCESS")
+        log("STATUS: IP SUCCESSFULLY CHANGED", "SUCCESS")
+        log("METHOD: TOR Network", "INFO")
+        log("Your traffic is now routed through TOR", "INFO")
+        return True, old_ip, new_ip
+    else:
+        log("STATUS: IP CHANGE FAILED", "ERROR")
+        log("Possible reasons:", "WARNING")
+        log("  1. TOR service not running properly", "WARNING")
+        log("  2. Network connectivity issues", "WARNING")
+        log("  3. TOR ports blocked by firewall", "WARNING")
+        log("\nTroubleshooting steps:", "INFO")
+        log("  1. Check TOR: sudo systemctl status tor", "INFO")
+        log("  2. Restart TOR: sudo systemctl restart tor", "INFO")
+        log("  3. Check logs: sudo journalctl -u tor -n 50", "INFO")
+        return False, old_ip if old_ip else "Unknown", new_ip if new_ip else "Unknown"
 
 def print_stats(successful, failed, start_time, ip_history):
-    """Print statistics"""
+    """Print session statistics"""
     runtime = time.time() - start_time
     hours, remainder = divmod(int(runtime), 3600)
     minutes, seconds = divmod(remainder, 60)
     
-    print_colored("\n" + "💀" * 35, Colors.RED)
-    print_colored("\n┌──────────────────────────────────────────────┐", Colors.PURPLE)
-    print_colored("│           💀 SESSION STATS 💀                │", Colors.PURPLE)
-    print_colored("├──────────────────────────────────────────────┤", Colors.PURPLE)
-    print_colored(f"│  ✅ Successful IP changes: {successful:<16} │", Colors.OKGREEN)
-    print_colored(f"│  ❌ Failed attempts: {failed:<23} │", Colors.FAIL)
-    print_colored(f"│  ⏱️  Runtime: {hours:02d}:{minutes:02d}:{seconds:02d}                       │", Colors.OKCYAN)
-    print_colored("├──────────────────────────────────────────────┤", Colors.PURPLE)
-    print_colored("│  📜 IP CHANGE HISTORY:                       │", Colors.YELLOW)
+    print("\n" + "="*60)
+    print(f"{Colors.BOLD}SESSION STATISTICS{Colors.END}")
+    print("="*60)
+    print(f"Successful changes: {Colors.GREEN}{successful}{Colors.END}")
+    print(f"Failed attempts: {Colors.RED}{failed}{Colors.END}")
+    print(f"Total runtime: {hours:02d}:{minutes:02d}:{seconds:02d}")
+    print("\nIP Change History:")
+    print("-"*60)
     
-    for i, (old_ip, new_ip, timestamp) in enumerate(ip_history[-5:], 1):
+    for old_ip, new_ip, timestamp in ip_history[-10:]:
         if old_ip != new_ip:
-            status = "✅"
-            color = Colors.OKGREEN
+            status = f"{Colors.GREEN}SUCCESS{Colors.END}"
         else:
-            status = "⚠️ "
-            color = Colors.WARNING
-        print_colored(f"│  {status} {timestamp} │ {old_ip[:15]:<15} → {new_ip[:15]:<15} │", color)
+            status = f"{Colors.YELLOW}NO CHANGE{Colors.END}"
+        print(f"[{timestamp}] {status} | {old_ip} -> {new_ip}")
     
-    print_colored("└──────────────────────────────────────────────┘", Colors.PURPLE)
-    print_colored("\n" + "💀" * 35, Colors.RED)
+    print("="*60 + "\n")
+
+def check_for_updates():
+    """Check for updates from GitHub"""
+    log("Checking for updates...", "SYSTEM")
+    try:
+        response = requests.get('https://api.github.com/repos/00xk/IP-Changer/releases/latest', timeout=5)
+        if response.status_code == 200:
+            latest_version = response.json().get('tag_name', 'unknown')
+            log(f"Latest version on GitHub: {latest_version}", "INFO")
+            log("To update, run: git pull origin main", "INFO")
+    except:
+        log("Could not check for updates", "WARNING")
 
 def main():
-    """Main function"""
+    """Main program loop"""
+    # Check root
+    is_root = check_root()
+    
+    # Display banner
     print_banner()
+    print_skull()
     
-    system = platform.system()
+    # Check for updates
+    check_for_updates()
     
-    # Get initial IPs
-    print_colored("🔍 Fetching current IP information...", Colors.CYAN)
-    current_public_ip = get_public_ip()
-    current_local_ip = get_local_ip()
+    # System info
+    print("\n" + "="*60)
+    log("SYSTEM INFORMATION", "SYSTEM")
+    print("="*60)
+    log(f"Platform: Linux", "INFO")
+    log(f"Root access: {'Yes' if is_root else 'No (limited features)'}", "INFO")
     
-    # System information
-    print_colored("\n╔════════════════════════════════════════════════════════════════════╗", Colors.CYAN)
-    print_colored(f"║  💻 System: {system:<56} ║", Colors.CYAN)
-    print_colored(f"║  🌍 Current Public IP: {current_public_ip:<43} ║", Colors.CYAN)
-    print_colored(f"║  🏠 Current Local IP: {current_local_ip:<44} ║", Colors.CYAN)
-    print_colored("╚════════════════════════════════════════════════════════════════════╝", Colors.CYAN)
+    interface = get_interface()
+    if interface:
+        log(f"Network interface: {interface}", "INFO")
     
-    if system not in ["Linux", "Windows"]:
-        print_colored("\n❌ Unsupported operating system!", Colors.FAIL)
-        return
+    direct_ip = get_public_ip()
+    if direct_ip:
+        log(f"Current public IP: {direct_ip}", "INFO")
     
-    # Get interval from user
-    print_colored("\n⚙️  Configuration", Colors.YELLOW, end='')
-    print_colored(" (Press Ctrl+C to stop at any time)", Colors.WARNING)
+    print("="*60)
     
+    # Configuration
+    print(f"\n{Colors.BOLD}CONFIGURATION{Colors.END}")
     try:
-        interval = input(f"\n{Colors.OKCYAN}⏱️  Enter interval in seconds (default: 5): {Colors.ENDC}").strip()
-        interval = int(interval) if interval else 5
-        
-        if interval < 1:
-            print_colored("⚠️  Interval too short! Using 5 seconds.", Colors.WARNING)
+        interval_input = input(f"{Colors.CYAN}[?]{Colors.END} Enter rotation interval in seconds (default: 10): ").strip()
+        interval = int(interval_input) if interval_input else 10
+        if interval < 5:
+            log("Minimum interval is 5 seconds", "WARNING")
             interval = 5
-    except ValueError:
-        print_colored("⚠️  Invalid input! Using default 5 seconds.", Colors.WARNING)
-        interval = 5
+    except:
+        interval = 10
+        log("Using default interval: 10 seconds", "INFO")
     
-    print_colored(f"\n💀 Starting EXTREME IP rotation every {interval} seconds...", Colors.BOLD + Colors.RED)
-    print_colored("Press Ctrl+C to stop", Colors.WARNING)
-    print_colored("═" * 70, Colors.CYAN)
+    log(f"IP rotation interval set to {interval} seconds", "SUCCESS")
+    log("Press Ctrl+C to stop", "INFO")
     
+    # Main loop
     successful = 0
     failed = 0
     start_time = time.time()
@@ -335,39 +554,35 @@ def main():
     
     try:
         while True:
-            if system == "Linux":
-                result, old_ip, new_ip = change_ip_linux()
-            elif system == "Windows":
-                result, old_ip, new_ip = change_ip_windows()
+            result, old_ip, new_ip = change_ip_complete()
             
             timestamp = datetime.now().strftime('%H:%M:%S')
             ip_history.append((old_ip, new_ip, timestamp))
             
             if result:
                 successful += 1
-                print_colored(f"\n🎯 Total successful changes: {successful}", Colors.OKGREEN)
             else:
                 failed += 1
-                print_colored(f"\n⚠️  Total failed attempts: {failed}", Colors.WARNING)
             
-            print_colored(f"\n⏳ Waiting {interval} seconds until next rotation...", Colors.CYAN)
-            print_colored("─" * 70, Colors.CYAN)
-            
-            # Countdown
-            for remaining in range(interval, 0, -1):
-                print(f"\r{Colors.YELLOW}💀 Next change in: {remaining} seconds...{Colors.ENDC}", end='', flush=True)
-                time.sleep(1)
-            print()  # New line after countdown
+            log(f"Next rotation in {interval} seconds...", "INFO")
+            time.sleep(interval)
             
     except KeyboardInterrupt:
-        print_colored("\n\n⏹️  Stopping IP rotation...", Colors.WARNING)
+        print("\n")
+        log("Stopping IP rotation service...", "WARNING")
         print_stats(successful, failed, start_time, ip_history)
-        print_colored("\n💀 Thanks for using IP CHANGER EXTREME! 💀", Colors.BOLD + Colors.RED)
-        print_colored("═" * 70 + "\n", Colors.CYAN)
+        log("Session terminated", "SYSTEM")
+        log("GitHub: https://github.com/00xk/IP-Changer", "INFO")
 
 if __name__ == "__main__":
+    if platform.system() != "Linux":
+        print("ERROR: This tool is designed for Linux only")
+        sys.exit(1)
+    
     try:
         main()
     except Exception as e:
-        print_colored(f"\n❌ Unexpected error: {str(e)}", Colors.FAIL)
+        print(f"\nFATAL ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
