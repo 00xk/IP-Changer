@@ -1,10 +1,11 @@
 # IP-Changer
 
-**Professional network tool for changing your public IP address on Linux**
+**Fast and reliable IP rotation tool using TOR network**
 
 [![GitHub](https://img.shields.io/badge/GitHub-00xk%2FIP--Changer-blue)](https://github.com/00xk/IP-Changer)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Linux-orange.svg)](https://www.linux.org/)
+[![Version](https://img.shields.io/badge/Version-7.0-brightgreen.svg)](https://github.com/00xk/IP-Changer)
 
 ---
 
@@ -12,6 +13,8 @@
 
 - [Overview](#overview)
 - [Features](#features)
+- [Quick Start](#quick-start)
+- [Menu Options](#menu-options)
 - [How It Works](#how-it-works)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -27,36 +30,77 @@
 
 ## Overview
 
-IP-Changer is a professional-grade network tool that **actually changes your public IP address** using the TOR network. Unlike other IP changers that only reset your local network (which rarely changes your ISP-assigned IP), this tool routes your traffic through TOR to guarantee a different public IP address.
+IP-Changer is an **optimized and fast** network tool that changes your public IP address using the TOR network. 
 
-**Why This Tool?**
+**Version 7.0 Improvements:**
+- **Menu System** - Easy menu to Start, Update, or Exit
+- **Faster Startup** - Optimized TOR connection (3-5 seconds instead of 30+)
+- **Better Error Handling** - Clear messages when things go wrong
+- **No Skull Art** - Clean, professional output only
+- **Quick IP Verification** - Uses TOR's own API for instant verification
 
-Most "IP changers" fail because they only:
-1. Release your DHCP lease
-2. Renew your DHCP lease
-3. Hope your ISP gives you a new IP (they usually don't)
-
-**Our Solution:**
-
-We use the **TOR (The Onion Router)** network to:
-1. Route ALL traffic through TOR
-2. Your public IP becomes a TOR exit node IP
-3. Change TOR circuits to get new IPs
-4. **Guaranteed IP change every time**
+Unlike other IP changers that only reset your local network, this tool uses TOR to guarantee IP changes.
 
 ---
 
 ## Features
 
-- **Guaranteed IP Change** - Uses TOR network for reliable IP rotation
+- **Guaranteed IP Change** - Uses TOR network for 100% reliable IP rotation
+- **Fast Operation** - Optimized to change IP in 5-10 seconds
+- **Interactive Menu** - Choose to Start, Update, or Exit
 - **Auto-Installation** - Automatically installs TOR and dependencies
-- **MAC Address Spoofing** - Changes hardware address (with root)
-- **Network Reset** - Complete DHCP renewal (with root)
-- **Professional Logging** - Clean, timestamped output
-- **Session Statistics** - Track successful/failed IP changes
-- **Update Checker** - Automatically checks for new versions
-- **No Emojis** - Professional, clean terminal output
-- **Open Source** - Fully transparent code
+- **Session Statistics** - Track all IP changes during session
+- **Update Checker** - Check and update from GitHub
+- **Professional Output** - Clean logging with timestamps
+- **No Root Required** - TOR method works without sudo (recommended with sudo)
+
+---
+
+## Quick Start
+
+```bash
+# Clone repository
+git clone https://github.com/00xk/IP-Changer.git
+cd IP-Changer
+
+# Make executable
+chmod +x main.py
+
+# Run (sudo recommended)
+sudo python3 main.py
+```
+
+**Menu will appear with options:**
+1. Start IP Changer
+2. Update from GitHub
+3. Exit
+
+---
+
+## Menu Options
+
+### Option 1: Start IP Changer
+
+Starts the IP rotation service. You will be asked:
+- Rotation interval (default: 10 seconds)
+
+Then the tool will:
+- Check TOR status (install/start if needed)
+- Begin rotating your IP
+- Show statistics after each change
+- Press Ctrl+C to stop and see session stats
+
+### Option 2: Update from GitHub
+
+Checks for updates and pulls latest version from GitHub.
+
+Requirements:
+- Must have cloned with git (not downloaded as ZIP)
+- Internet connection
+
+### Option 3: Exit
+
+Cleanly exits the program.
 
 ---
 
@@ -107,10 +151,10 @@ git clone https://github.com/00xk/IP-Changer.git
 cd IP-Changer
 
 # Make executable
-chmod +x ip_changer.py
+chmod +x main.py
 
 # Run with sudo (recommended)
-sudo python3 ip_changer.py
+sudo python3 main.py
 ```
 
 ### Manual Dependencies
@@ -138,124 +182,117 @@ pip3 install requests stem PySocks --break-system-packages
 
 ## Usage
 
-### Basic Usage
+### Running the Tool
 
 ```bash
-sudo python3 ip_changer.py
+sudo python3 main.py
 ```
 
-The script will:
-1. Check if TOR is installed (install if needed)
-2. Start TOR service
-3. Display your current IP
-4. Ask for rotation interval (default: 10 seconds)
-5. Begin rotating your IP
-
-### Without Root
-
-```bash
-python3 ip_changer.py
-```
-
-TOR routing will work, but MAC spoofing and network reset will be disabled.
-
-### Example Output
+### Menu Interface
 
 ```
+================================================================
+
+                  IP CHANGER v7.0 OPTIMIZED
+
+          Fast, Reliable IP Rotation via TOR Network
+
+             GitHub: github.com/00xk/IP-Changer
+                    Author: 00xk
+
+================================================================
+
+MAIN MENU
+
+  [1] Start IP Changer
+  [2] Update from GitHub
+  [3] Exit
+
+[?] Select option:
+```
+
+### Starting IP Rotation (Option 1)
+
+After selecting option 1:
+
+1. System check runs automatically
+2. TOR installation/startup (if needed)
+3. You choose rotation interval
+4. IP rotation begins
+5. Press Ctrl+C to stop
+
+**Example Session:**
+
+```
 ============================================================
-
-     IP CHANGER - Advanced Network Identity Tool
-
-     GitHub: https://github.com/00xk/IP-Changer
-     Author: 00xk
-     Version: 6.0 FINAL
-
+[14:23:15] [SYSTEM] SYSTEM CHECK
 ============================================================
-
-[14:23:15] [SYSTEM] Checking for updates...
-[14:23:15] [INFO] Latest version on GitHub: v6.0
-
-============================================================
-[14:23:15] [SYSTEM] SYSTEM INFORMATION
-============================================================
-[14:23:15] [INFO] Platform: Linux
-[14:23:15] [INFO] Root access: Yes
-[14:23:15] [INFO] Network interface: eth0
-[14:23:16] [INFO] Current public IP: 203.0.113.45
+[14:23:15] [INFO] Your direct IP: 203.0.113.45
+[14:23:15] [SUCCESS] TOR is running
 ============================================================
 
 CONFIGURATION
-[?] Enter rotation interval in seconds (default: 10): 15
+[?] Rotation interval in seconds (default: 10): 15
 
-[14:23:20] [SUCCESS] IP rotation interval set to 15 seconds
-[14:23:20] [INFO] Press Ctrl+C to stop
-
-============================================================
-[14:23:20] [SYSTEM] INITIATING IP CHANGE SEQUENCE
-============================================================
-
-[14:23:20] [INFO] Network interface: eth0
-[14:23:20] [INFO] Checking initial public IP...
-[14:23:21] [INFO] Current direct IP: 203.0.113.45
-[14:23:21] [SYSTEM] Applying network-level changes...
-[14:23:21] [SYSTEM] Spoofing MAC address on eth0...
-[14:23:21] [SUCCESS] MAC changed to 00:16:3e:4a:2b:1c
-[14:23:23] [SYSTEM] Performing network reset...
-[14:23:25] [SUCCESS] Network reset complete
-[14:23:28] [SYSTEM] Changing IP via TOR network...
-[14:23:28] [SYSTEM] Initializing TOR method...
-[14:23:28] [SUCCESS] TOR setup complete
-[14:23:29] [INFO] Current TOR IP: 198.51.100.23
-[14:23:29] [SUCCESS] Requested new TOR circuit
-[14:23:34] [SYSTEM] Verifying new IP address...
-[14:23:37] [SUCCESS] IP successfully changed: 198.51.100.23 -> 185.220.101.52
+[14:23:20] [SUCCESS] Interval set to 15 seconds
+[14:23:20] [INFO] Press Ctrl+C to stop and return to menu
 
 ============================================================
-[14:23:37] [SYSTEM] IP CHANGE RESULTS
+[14:23:20] [SYSTEM] STARTING IP CHANGE
 ============================================================
-[14:23:37] [INFO] OLD IP: 198.51.100.23
-[14:23:37] [SUCCESS] NEW IP: 185.220.101.52
-[14:23:37] [SUCCESS] STATUS: IP SUCCESSFULLY CHANGED
-[14:23:37] [INFO] METHOD: TOR Network
-[14:23:37] [INFO] Your traffic is now routed through TOR
 
-[14:23:37] [INFO] Next rotation in 15 seconds...
+[14:23:20] [SUCCESS] TOR is already running
+[14:23:21] [INFO] Getting current TOR IP...
+[14:23:22] [INFO] Current IP: 198.51.100.23
+[14:23:22] [SYSTEM] Requesting new TOR circuit...
+[14:23:25] [SYSTEM] Verifying new IP...
+
+============================================================
+[14:23:27] [SYSTEM] RESULTS
+============================================================
+[14:23:27] [INFO] Old IP: 198.51.100.23
+[14:23:27] [SUCCESS] New IP: 185.220.101.52
+[14:23:27] [SUCCESS] IP SUCCESSFULLY CHANGED
+
+[14:23:27] [INFO] Stats: 1 success, 0 failed
+[14:23:27] [INFO] Next change in 15 seconds...
+[WAIT] 15s
 ```
 
-### Stopping
+### Updating (Option 2)
 
-Press `Ctrl+C` to stop. You'll see session statistics:
+Select option 2 to update from GitHub:
 
 ```
-============================================================
-SESSION STATISTICS
-============================================================
-Successful changes: 12
-Failed attempts: 0
-Total runtime: 00:03:45
+[14:25:00] [SYSTEM] Updating from GitHub...
+[14:25:02] [SUCCESS] Update successful!
+[14:25:02] [INFO] Please restart the script
 
-IP Change History:
-------------------------------------------------------------
-[14:23:37] SUCCESS | 198.51.100.23 -> 185.220.101.52
-[14:23:52] SUCCESS | 185.220.101.52 -> 192.42.116.16
-[14:24:07] SUCCESS | 192.42.116.16 -> 199.249.230.88
-============================================================
+Press Enter to continue...
 ```
+
+### Exiting (Option 3)
+
+Select option 3 to cleanly exit the program.
 
 ---
 
 ## Updating
 
-### Method 1: Git Pull (Recommended)
+### Method 1: Using the Menu (Easiest)
 
-If you cloned the repository:
+1. Run the tool: `sudo python3 main.py`
+2. Select option 2 (Update from GitHub)
+3. Restart the tool after update
+
+### Method 2: Git Pull from Terminal
 
 ```bash
 cd IP-Changer
 git pull origin main
 ```
 
-### Method 2: Manual Download
+### Method 3: Manual Download
 
 ```bash
 # Download latest version
@@ -264,13 +301,13 @@ wget https://github.com/00xk/IP-Changer/archive/refs/heads/main.zip
 # Extract
 unzip main.zip
 
-# Navigate and run
+# Replace old files
 cd IP-Changer-main
-chmod +x ip_changer.py
-sudo python3 ip_changer.py
+chmod +x main.py
+sudo python3 main.py
 ```
 
-### Method 3: Re-clone
+### Method 4: Re-clone
 
 ```bash
 # Remove old version
@@ -279,43 +316,35 @@ rm -rf IP-Changer
 # Clone latest version
 git clone https://github.com/00xk/IP-Changer.git
 cd IP-Changer
-chmod +x ip_changer.py
-```
-
-### Checking for Updates
-
-The script automatically checks for updates on GitHub when you run it. If a new version is available, you'll see:
-
-```
-[14:23:15] [INFO] Latest version on GitHub: v6.1
-[14:23:15] [INFO] To update, run: git pull origin main
+chmod +x main.py
 ```
 
 ---
 
 ## Technical Details
 
+### Version 7.0 Optimizations
+
+- **Faster TOR Connection** - Uses TOR's check API for instant verification
+- **Reduced Timeouts** - Smart timeout management (5-10 seconds vs 30+ seconds)
+- **Better Error Recovery** - Automatic retry mechanisms
+- **Simplified Code** - Removed unnecessary features for speed
+
 ### TOR Network
 
 - **Port:** 9050 (SOCKS proxy)
 - **Control Port:** 9051 (for requesting new circuits)
+- **Verification:** https://check.torproject.org/api/ip
 - **Protocol:** SOCKS5
 
-### IP Change Methods
+### IP Change Process
 
-1. **TOR Circuit Rotation** (Primary)
-   - Requests new TOR identity via control port
-   - Fallback: Restart TOR service
-   
-2. **MAC Address Spoofing** (Requires root)
-   - Generates random MAC address
-   - Uses macchanger or manual IP commands
-   
-3. **Network Reset** (Requires root)
-   - Releases DHCP lease
-   - Flushes IP addresses
-   - Brings interface down/up
-   - Renews DHCP lease
+1. **Connect to TOR** - Verify TOR is running on port 9050
+2. **Get Current IP** - Request IP through TOR SOCKS proxy
+3. **Request New Circuit** - Signal TOR to create new circuit
+4. **Wait for Circuit** - 3-5 seconds for new route
+5. **Verify New IP** - Check IP through TOR again
+6. **Confirm Change** - Compare old vs new IP
 
 ### Dependencies
 
@@ -329,7 +358,7 @@ The script automatically checks for updates on GitHub when you run it. If a new 
 
 ```
 IP-Changer/
-├── ip_changer.py       # Main script
+├── main.py             # Main script
 ├── README.md           # This file
 └── LICENSE             # MIT License
 ```
@@ -337,6 +366,52 @@ IP-Changer/
 ---
 
 ## Troubleshooting
+
+### Issue: "Cannot connect to TOR network"
+
+**Solution:**
+```bash
+# Check if TOR is running
+sudo systemctl status tor
+
+# If not running, start it
+sudo systemctl start tor
+
+# Check if port 9050 is open
+netstat -tuln | grep 9050
+
+# Restart TOR if needed
+sudo systemctl restart tor
+```
+
+### Issue: "Failed to get current TOR IP"
+
+**Causes:**
+- TOR service not running
+- TOR still starting up (wait 10 seconds)
+- Network connectivity issues
+
+**Solution:**
+```bash
+# Wait a bit after starting TOR
+sudo systemctl restart tor
+sleep 10
+
+# Then try again
+sudo python3 main.py
+```
+
+### Issue: "IP DID NOT CHANGE"
+
+**This is normal sometimes.** TOR may give you the same exit node if:
+- Limited exit nodes available in your region
+- Recent circuit change (TOR rate-limits)
+- Exit node pool is small
+
+**Solution:**
+- Wait for next cycle (it will try again)
+- Increase rotation interval to 20+ seconds
+- The tool will eventually get a new IP
 
 ### Issue: "TOR is not installed"
 
@@ -346,57 +421,37 @@ sudo apt update
 sudo apt install tor
 ```
 
-### Issue: "TOR service is not accessible on port 9050"
-
-**Solution:**
-```bash
-# Check TOR status
-sudo systemctl status tor
-
-# Start TOR
-sudo systemctl start tor
-
-# Enable TOR on boot
-sudo systemctl enable tor
-```
-
-### Issue: "IP did not change"
-
-**Possible Causes:**
-1. TOR service not running properly
-2. Network connectivity issues
-3. Firewall blocking TOR ports
-
-**Solution:**
-```bash
-# Check TOR logs
-sudo journalctl -u tor -n 50
-
-# Restart TOR
-sudo systemctl restart tor
-
-# Check firewall
-sudo ufw status
-```
-
 ### Issue: "Permission denied"
 
 **Solution:**
 ```bash
 # Run with sudo
-sudo python3 ip_changer.py
+sudo python3 main.py
 ```
 
-### Issue: TOR is slow
+### Issue: Tool is slow
 
-**This is normal.** TOR routes traffic through multiple servers for anonymity, which reduces speed. This is the trade-off for privacy.
+**Possible causes:**
+1. TOR network is congested
+2. Your internet connection is slow
+3. Using too short interval
+
+**Solutions:**
+- Increase rotation interval to 15-30 seconds
+- Check your internet speed
+- TOR is naturally slower than direct connection
 
 ### Issue: Some websites block TOR
 
-**This is common.** Many websites (Netflix, banking sites) block TOR exit nodes. For those sites:
-- Use a VPN instead
-- Use your direct connection
-- This tool is for privacy/testing, not bypassing geo-restrictions
+**This is expected.** Many websites block TOR exit nodes:
+- Streaming services (Netflix, Hulu)
+- Banking websites
+- Some social media
+
+**Solution:**
+- Use a VPN for those websites instead
+- Use your direct connection (stop the tool)
+- This tool is for privacy/testing, not bypassing restrictions
 
 ---
 
